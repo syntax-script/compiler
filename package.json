@@ -1,0 +1,35 @@
+{
+  "name": "@syntaxs/compiler",
+  "version": "0.0.1-alpha",
+  "description": "Compiler used to compile Syntax Script projects.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syntaxs/compiler.git"
+  },
+  "keywords": [
+    "syntaxs",
+    "syntax",
+    "script",
+    "syntax",
+    "script",
+    "ss",
+    "syx",
+    "sys",
+    "compiler",
+    "code",
+    "compiler"
+  ],
+  "author": "efekos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/syntaxs/compiler/issues"
+  },
+  "homepage": "https://github.com/syntaxs/compiler#readme",
+  "devDependencies": {
+    "@types/node": "^20.12.5"
+  }
+}

@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "moduleResolution": "nodenext",
+        "target": "ESNext",
+        "skipLibCheck": true,
+        "allowUnreachableCode": false,
+        "declaration": true
+    },
+    "exclude": ["./syx/**/*"],
+    "include": ["./src"]
+}
