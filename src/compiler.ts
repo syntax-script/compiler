@@ -68,7 +68,7 @@ export class SyntaxScriptCompiler {
      * Compiles one .syx file from the path given.
      * @param {string} file Path to a file to compile.
      * @author efekos
-     * @version 1.0.1
+     * @version 1.0.2
      * @since 0.0.1-alpha
      */
     public compileSyx(file: string) {
@@ -197,7 +197,7 @@ export class SyntaxScriptCompiler {
      * @param {string} file Path to the .sys file to compile.
      * @author efekos
      * @since 0.0.1-alpha
-     * @version 1.0.0
+     * @version 1.0.1
      */
     public compileSys(file: string) {
         const ast = sysparser.parseTokens(tokenizeSys(readFileSync(file).toString()), this.watchMode);

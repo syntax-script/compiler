@@ -89,7 +89,7 @@ export namespace syxparser {
      * @param {boolean} put Whether the result should be added to the program statement.
      * @returns A node that is either a statement or an expression if a statement wasn't present.
      * @author efekos
-     * @version 1.0.4
+     * @version 1.0.5
      * @since 0.0.1-alpha
      */
     export function parseStatement(put: boolean = true): Node {
@@ -262,7 +262,7 @@ export namespace syxparser {
      * @param {boolean} expectIdentifier Whether identifiers should be allowed. Unknown identifiers will stop the function with this value set to `false`, returning the identifier as a {@link StringExpression} otherwise.
      * @returns The parsed node.
      * @author efekos
-     * @version 1.0.5
+     * @version 1.0.6
      * @since 0.0.1-alpha
      */
     export function parseExpression(put: boolean = true, statements: boolean = true, expectIdentifier: boolean = false): Node {
@@ -440,7 +440,7 @@ export namespace sysparser {
      * @param {boolean} put Whether the result should be added to the program statement.
      * @returns A node that is either a statement or an expression if a statement wasn't present.
      * @author efekos
-     * @version 1.0.3
+     * @version 1.0.4
      * @since 0.0.1-alpha
      */
     export function parseStatement(put: boolean = true): Node {
@@ -481,7 +481,7 @@ export namespace sysparser {
      * @param {boolean} expectIdentifier Whether identifiers should be allowed. Unknown identifiers will stop the function with this value set to `false`, returning the identifier as a {@link StringExpression} otherwise.
      * @returns The parsed node.
      * @author efekos
-     * @version 1.0.3
+     * @version 1.0.4
      * @since 0.0.1-alpha
      */
     export function parseExpression(put: boolean = true, statements: boolean = true): Node {

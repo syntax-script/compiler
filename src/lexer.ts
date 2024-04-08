@@ -57,7 +57,7 @@ function isInt(src: string) {
  * @param {boolean} watchMode Whether is it watch mode or not. Errors will throw an error instead of exiting if this value is set to `true`.
  * @returns A list of tokens generated from source string.
  * @author efekos
- * @version 1.0.4
+ * @version 1.0.5
  * @since 0.0.1-alpha
  * @throws LexerError if an error occurs.
  */
