@@ -124,7 +124,7 @@ export enum DiagnosticSeverity {
  * @since 3.17.0
  * @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#position
  */
-interface Position {
+export interface Position {
     /**
      * Line position in a document (zero-based).
      */
@@ -149,7 +149,7 @@ interface Position {
  * @since 3.17.0
  * @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
  */
-interface Range {
+export interface Range {
     /**
      * The range's start position.
      */
