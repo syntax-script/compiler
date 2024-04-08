@@ -4,11 +4,14 @@
   "description": "Compiler used to compile Syntax Script projects.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ./src/**/*.ts",
+    "prebuild": "npm run lint && node distDeletor.js",
+    "build":"tsc",
+    "postbuild":"clear && echo Builded"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/syntaxs/compiler.git"
+    "url": "git+https://github.com/syntax-script/compiler.git"
   },
   "keywords": [
     "syntaxs",
@@ -30,6 +33,11 @@
   },
   "homepage": "https://github.com/syntaxs/compiler#readme",
   "devDependencies": {
-    "@types/node": "^20.12.5"
-  }
+    "@types/node": "^20.12.5",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jsdoc": "^48.2.3"
+  },
+  "type": "module"
 }
