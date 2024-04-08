@@ -1,4 +1,4 @@
-import { Position } from "./diagnosticTypes.js";
+import { Position } from './diagnosticTypes.js';
 
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,

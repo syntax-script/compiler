@@ -159,41 +159,41 @@ export namespace syxparser {
                 while (at().type !== TokenType.CloseParen) {
                     const t = tokens.shift();
 
-                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError({character:t.pos,line:t.line},`Expected identifier after comma.`);
-                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError({character:t.pos,line:t.line},`Can\'t start with comma.`);
+                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError({character:t.pos,line:t.line},'Expected identifier after comma.');
+                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError({character:t.pos,line:t.line},'Can\'t start with comma.');
                     else if (t.type === TokenType.Comma) { }
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
-                    else throw new CompilerError({character:t.pos,line:t.line},`Unexpected token.`);
+                    else throw new CompilerError({character:t.pos,line:t.line},'Unexpected token.');
                 }
                 tokens.shift(); // skip CloseParen
 
                 const moduleExpr = parseExpression(false, false);
 
-                if (moduleExpr.type !== NodeType.String) { throw new CompilerError({character:moduleExpr.pos,line:moduleExpr.line},`Expected string after parens of imports statement.`); return; }
+                if (moduleExpr.type !== NodeType.String) { throw new CompilerError({character:moduleExpr.pos,line:moduleExpr.line},'Expected string after parens of imports statement.'); }
 
                 statement.module = moduleExpr.value;
                 statement.end = moduleExpr.end;
 
-                if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().line},`Expected \';\' after imports statement.`);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().line},'Expected \';\' after imports statement.');
                 tokens.shift();
 
                 return node(statement, put);
             } else if (token.type === TokenType.FunctionKeyword) {
                 const statement: FunctionStatement = { type: NodeType.Function, arguments: [], name: '', body: [], pos: token.pos, end: token.end, line: token.line };
 
-                if (at().type !== TokenType.Identifier) throw new CompilerError({character:at().pos,line:at().line},`Expected identifier after function statement.`);
+                if (at().type !== TokenType.Identifier) throw new CompilerError({character:at().pos,line:at().line},'Expected identifier after function statement.');
                 statement.name = at().value;
                 tokens.shift();
 
                 while (at().type !== TokenType.OpenBrace) {
                     const expr = parseExpression(false, false);
-                    if (expr.type !== NodeType.PrimitiveType) throw new CompilerError({character:expr.pos,line:expr.line},`Expected argument types after function name.`);
+                    if (expr.type !== NodeType.PrimitiveType) throw new CompilerError({character:expr.pos,line:expr.line},'Expected argument types after function name.');
                     statement.arguments.push((expr as PrimitiveTypeExpression).value);
                 }
 
                 const braceExpr = parseExpression(false);
-                if (braceExpr.type !== NodeType.Brace) throw new CompilerError({character:braceExpr.pos,line:braceExpr.line},`Expected braces after \'function\'.`);
-                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError({character:braceExpr.pos,line:braceExpr.line},`Statement not allowed`); });
+                if (braceExpr.type !== NodeType.Brace) throw new CompilerError({character:braceExpr.pos,line:braceExpr.line},'Expected braces after \'function\'.');
+                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError({character:braceExpr.pos,line:braceExpr.line},'Statement not allowed'); });
 
                 statement.body = braceExpr.body;
                 statement.end = braceExpr.end;
@@ -201,24 +201,24 @@ export namespace syxparser {
                 return node(statement, put);
             } else if (token.type === TokenType.KeywordKeyword) {
                 const ex = parseExpression(false, false, true);
-                if (ex.type !== NodeType.String) throw new CompilerError({character:ex.pos,line:ex.line},`Expected identifier after keyword statement.`);
-                if (at().type !== TokenType.Semicolon) throw new CompilerError({character:ex.pos,line:ex.line},`Expected semicolon after statement.`);
+                if (ex.type !== NodeType.String) throw new CompilerError({character:ex.pos,line:ex.line},'Expected identifier after keyword statement.');
+                if (at().type !== TokenType.Semicolon) throw new CompilerError({character:ex.pos,line:ex.line},'Expected semicolon after statement.');
                 tokens.shift(); // skip semicolon
                 return node({ type: NodeType.Keyword, word: ex.value, pos: token.pos, end: ex.end + 1, line: token.line }, put);
             } else if (token.type === TokenType.RuleKeyword) {
                 const ruleExpr = parseExpression(false, false);
-                if (ruleExpr.type !== NodeType.String) { throw new CompilerError({character:ruleExpr.pos,line:ruleExpr.line},`Expected string after \'rule\'.`); return; }
-                if (at().value !== ':') throw new CompilerError({character:ruleExpr.pos,line:ruleExpr.line},`Expected \':\' after rule name.`);
+                if (ruleExpr.type !== NodeType.String) { throw new CompilerError({character:ruleExpr.pos,line:ruleExpr.line},'Expected string after \'rule\'.'); }
+                if (at().value !== ':') throw new CompilerError({character:ruleExpr.pos,line:ruleExpr.line},'Expected \':\' after rule name.');
                 tokens.shift();
                 if (!(ruleExpr.value in SyxRuleRegistry)) throw new CompilerError({character:ruleExpr.pos,line:ruleExpr.line},`Unknown rule '${ruleExpr.value}'.`);
                 const rule = SyxRuleRegistry[ruleExpr.value];
 
                 if (rule.value === 'boolean') {
                     const boolEx = parseExpression(false, false, true);
-                    if (!(boolEx.type === NodeType.String && rule.regex.test(boolEx.value))) { throw new CompilerError({character:1,line:1},`Expected boolean as rule value.`); return; }
+                    if (!(boolEx.type === NodeType.String && rule.regex.test(boolEx.value))) { throw new CompilerError({character:1,line:1},'Expected boolean as rule value.'); }
 
 
-                    if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().line},`Expected semicolon after rule statement.`);
+                    if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().line},'Expected semicolon after rule statement.');
                     tokens.shift();
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, pos: token.pos, end: boolEx.end, line: token.line }, put);
                 } else if (rule.value === 'keyword') {
@@ -229,9 +229,9 @@ export namespace syxparser {
                             (s.type === NodeType.Keyword && (s as KeywordStatement).word === keyEx.value) ||
                             (s.type === NodeType.Export && (s as ExportStatement).body.type === NodeType.Keyword && ((s as ExportStatement).body as KeywordStatement).word === keyEx.value)
                         )
-                    )) throw new CompilerError({character:keyEx.pos,line:keyEx.line},`Unknown keyword.`);
+                    )) throw new CompilerError({character:keyEx.pos,line:keyEx.line},'Unknown keyword.');
 
-                    if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().pos},`Expected semicolon after rule statement.`);
+                    if (at().type !== TokenType.Semicolon) throw new CompilerError({character:at().pos,line:at().pos},'Expected semicolon after rule statement.');
                     tokens.shift();
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, pos: token.pos, end: keyEx.end, line: token.line }, put);
                 }
@@ -299,7 +299,7 @@ export namespace syxparser {
         } else if (tt === TokenType.OpenDiamond) {
 
             const newToken = at(1);
-            if (newToken.type !== TokenType.Identifier) throw new CompilerError({character:newToken.pos,line:newToken.line},`Expected identifier after \'<\'.`);
+            if (newToken.type !== TokenType.Identifier) throw new CompilerError({character:newToken.pos,line:newToken.line},'Expected identifier after \'<\'.');
             if (!newToken.value.match(primitiveTypes)) throw new CompilerError({character:newToken.pos,line:newToken.line},`Expected primitive type, found '${newToken.value}'`);
             if (at(2).type !== TokenType.CloseDiamond) throw new CompilerError({character:at(2).pos,line:at(2).line},`Expected '>' after primitive type, found '${at(2).value}'`);
             tokens.shift();
@@ -361,7 +361,7 @@ export namespace syxparser {
             tokens.shift(); // index
             return node(expr, put);
         } else if (keywords.includes(tt)) {
-            if (!statements) throw new CompilerError({character:at().pos,line:at().line},`Unexpected statement.`);
+            if (!statements) throw new CompilerError({character:at().pos,line:at().line},'Unexpected statement.');
             return parseStatement();
         } else if (tt === TokenType.Identifier && expectIdentifier) {
             const { value, pos, end, line } = tokens.shift();
@@ -451,7 +451,7 @@ export namespace sysparser {
             if (token.type === TokenType.ImportKeyword) {
 
                 const ex = parseExpression(false, false);
-                if (ex.type !== NodeType.String) throw new CompilerError({character:ex.pos,line:ex.line},`Expected string after import statement.`);
+                if (ex.type !== NodeType.String) throw new CompilerError({character:ex.pos,line:ex.line},'Expected string after import statement.');
                 return node({ type: NodeType.Import, path: (ex as Expression).value, pos: token.pos, end: ex.end, line: ex.line }, put);
 
             }
@@ -514,7 +514,7 @@ export namespace sysparser {
             tokens.shift();
             return node({ type: NodeType.String, value: s, pos, end: endPos + 1, line }, put);
         } else if (keywords.includes(tt)) {
-            if (!statements) throw new CompilerError({character:at().pos,line:at().line},`Unexpected statement.`);
+            if (!statements) throw new CompilerError({character:at().pos,line:at().line},'Unexpected statement.');
             return parseStatement();
         }
         else throw new CompilerError({character:at().pos,line:at().line},`Unexpected expression: '${at().value}'`);

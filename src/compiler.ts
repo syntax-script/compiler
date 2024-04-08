@@ -117,7 +117,7 @@ export class SyntaxScriptCompiler {
                                         const varExpr = e as VariableExpression;
                                         const v = src.match(new RegExp(regexes[varExpr.value].source, 'g'))[varExpr.index];
 
-                                        if (v === undefined) throw new CompilerError({ character: compileStmt.pos, line: compileStmt.line }, `Unknown statement/expression.`);
+                                        if (v === undefined) throw new CompilerError({ character: compileStmt.pos, line: compileStmt.line }, 'Unknown statement/expression.');
                                         out += v;
                                     } else if (e.type === NodeType.WhitespaceIdentifier) out += ' ';
                                 });
