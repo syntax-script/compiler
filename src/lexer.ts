@@ -1,4 +1,4 @@
-import { Token, TokenType } from './types.js';
+import { CompilerError, Token, TokenType } from './types.js';
 
 const keywords: Record<string, TokenType> = {
     operator: TokenType.OperatorKeyword,
@@ -59,6 +59,7 @@ function isInt(src: string) {
  * @author efekos
  * @version 1.0.4
  * @since 0.0.1-alpha
+ * @throws LexerError if an error occurs.
  */
 export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
     const tokens: Token[] = [];
@@ -67,7 +68,11 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
     let curLine = 0;
 
     while (src.length > 0) {
-        if (!isSkippable(src[0])) log.debug(`Parsing token: '${src[0]}'`);
+        if (src[0] === '/' && src[1] === '/') {
+            while (src.length>0 && src[0] !== '\n') {
+                src.shift();
+            }
+        }
         if (src[0] === '(') tokens.push({ type: TokenType.OpenParen, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (src[0] === ')') tokens.push({ type: TokenType.CloseParen, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (src[0] === '{') tokens.push({ type: TokenType.OpenBrace, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
@@ -83,11 +88,10 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
         else if (src[0] === '|') tokens.push({ type: TokenType.VarSeperator, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (src[0] === '+' && chars.includes(src[1])) {
             if (src[1] === 's') tokens.push({ type: TokenType.WhitespaceIdentifier, value: '+s', pos: curPos, end: curPos + 2, line: curLine });
-            else (watchMode ? log.thrower : log.exit).error(`${chalk.gray(`(${curLine}:${curPos})`)}} Unexpected identifier: '${src[1]}'`);
+            else throw new CompilerError({character:curPos,line:curLine},`Unexpected identifier: '${src[1]}'`);
             curPos += 2;
             src.shift(); src.shift();
         } else if (isInt(src[0])) {
-            log.debug('Found int number');
             let ident = '';
             const startPos = curPos;
             while (src.length > 0 && isInt(src[0])) {
@@ -97,7 +101,6 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
             curPos += ident.length;
             tokens.push({ type: TokenType.IntNumber, value: ident, pos: startPos, end: curPos, line: curLine });
         } else if (isAlphabetic(src[0])) {
-            log.debug('Found identifier');
             let ident = '';
             const startPos = curPos;
             while (src.length > 0 && isAlphabetic(src[0])) {
@@ -106,10 +109,8 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
             }
 
             const reserved = keywords[ident];
-            if (reserved !== undefined) log.debug(`Found keyword: '${reserved}'`);
             tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, pos: startPos, end: curPos, line: curLine });
         } else if (isSkippable(src[0])) {
-            log.debug('Found skippable char');
             src.shift();
             curPos++;
             if (src[0] === '\n') curLine++;
@@ -137,12 +138,10 @@ export function tokenizeSys(source: string): Token[] {
     let curLine = 0;
 
     while (src.length > 0 && `${src[0]}${src[1]}${src[2]}` !== ':::') {
-        if (!isSkippable(src[0])) log.debug(`Parsing tokenmm: '${src[0]}'`);
         if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (src[0] === '\'') tokens.push({ type: TokenType.SingleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (src[0] === '"') tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
         else if (isAlphabetic(src[0])) {
-            log.debug('Found identifier');
             let ident = '';
             const startPos = curPos;
             while (src.length > 0 && isAlphabetic(src[0])) {
@@ -151,10 +150,8 @@ export function tokenizeSys(source: string): Token[] {
             }
 
             const reserved = keywords[ident];
-            if (reserved !== undefined) log.debug(`Found keyword: '${reserved}'`);
             tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, pos: startPos, end: curPos, line: curLine });
         } else if (isSkippable(src[0])) {
-            log.debug('Found skippable char');
             src.shift();
             curPos++;
             if (src[0] === '\n') curLine++;

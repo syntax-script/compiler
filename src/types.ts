@@ -1,3 +1,5 @@
+import { Position } from "./diagnosticTypes.js";
+
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,
  * it will be tokenized as {@link TokenType.Raw} to let strings include any character.
@@ -515,4 +517,26 @@ export interface SyxConfigCompile {
     root: string;
     out: string;
     format: string;
+}
+
+
+
+/**
+ * An error that occured while tokenizing, parsing or compiling a file.
+ */
+export class CompilerError extends Error{
+    range:Position;
+    file:string;
+
+    /**
+     * An error that occured while tokenizing a file.
+     * @param {Position} range Range where the error is.
+     * @param {string} message Error message. 
+     */
+    constructor(range:Position,message:string,file?:string) {
+        super();
+        this.range = range;
+        this.message = message;
+        this.file = file;
+    }
 }
