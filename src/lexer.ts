@@ -1,4 +1,5 @@
 import { CompilerError, Token, TokenType } from './types.js';
+import { Position, Range } from './diagnosticTypes.js';
 
 const keywords: Record<string, TokenType> = {
     operator: TokenType.OperatorKeyword,
@@ -51,6 +52,18 @@ function isInt(src: string) {
     return src.match(/^[0-9]+$/);
 }
 
+function opr(line: number, character: number): Range {
+    return { end: { line, character }, start: { line, character } };
+}
+
+function pos(line: number, character: number): Position {
+    return { line, character };
+}
+
+function tpr(start: Position, end: Position): Range {
+    return { end, start };
+}
+
 /**
  * Tokenizes a .syx file.
  * @param {string} source Source string.
@@ -69,26 +82,26 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
 
     while (src.length > 0) {
         if (src[0] === '/' && src[1] === '/') {
-            while (src.length>0 && src[0] !== '\n') {
+            while (src.length > 0 && src[0] !== '\n' as string) {
                 src.shift();
             }
         }
-        if (src[0] === '(') tokens.push({ type: TokenType.OpenParen, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === ')') tokens.push({ type: TokenType.CloseParen, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '{') tokens.push({ type: TokenType.OpenBrace, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '}') tokens.push({ type: TokenType.CloseBrace, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '[') tokens.push({ type: TokenType.OpenSquare, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === ']') tokens.push({ type: TokenType.CloseSquare, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === ',') tokens.push({ type: TokenType.Comma, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '<') tokens.push({ type: TokenType.OpenDiamond, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '>') tokens.push({ type: TokenType.CloseDiamond, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '\'') tokens.push({ type: TokenType.SingleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '"') tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '|') tokens.push({ type: TokenType.VarSeperator, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
+        if (src[0] === '(') tokens.push({ type: TokenType.OpenParen, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ')') tokens.push({ type: TokenType.CloseParen, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '{') tokens.push({ type: TokenType.OpenBrace, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '}') tokens.push({ type: TokenType.CloseBrace, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '[') tokens.push({ type: TokenType.OpenSquare, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ']') tokens.push({ type: TokenType.CloseSquare, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ',') tokens.push({ type: TokenType.Comma, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '<') tokens.push({ type: TokenType.OpenDiamond, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '>') tokens.push({ type: TokenType.CloseDiamond, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '\'') tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '"') tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '|') tokens.push({ type: TokenType.VarSeperator, value: src.shift(), range: opr(curLine, curPos++) });
         else if (src[0] === '+' && chars.includes(src[1])) {
-            if (src[1] === 's') tokens.push({ type: TokenType.WhitespaceIdentifier, value: '+s', pos: curPos, end: curPos + 2, line: curLine });
-            else throw new CompilerError({character:curPos,line:curLine},`Unexpected identifier: '${src[1]}'`);
+            if (src[1] === 's') tokens.push({ type: TokenType.WhitespaceIdentifier, value: '+s', range: tpr(pos(curLine, curPos), pos(curLine, curPos + 2)) });
+            else throw new CompilerError({ character: curPos, line: curLine }, `Unexpected identifier: '${src[1]}'`);
             curPos += 2;
             src.shift(); src.shift();
         } else if (isInt(src[0])) {
@@ -99,7 +112,7 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
             }
 
             curPos += ident.length;
-            tokens.push({ type: TokenType.IntNumber, value: ident, pos: startPos, end: curPos, line: curLine });
+            tokens.push({ type: TokenType.IntNumber, value: ident, range: tpr(pos(curLine, startPos), pos(curLine, curPos)) });
         } else if (isAlphabetic(src[0])) {
             let ident = '';
             const startPos = curPos;
@@ -109,16 +122,16 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
             }
 
             const reserved = keywords[ident];
-            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, pos: startPos, end: curPos, line: curLine });
+            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range:tpr(pos(curLine,startPos),pos(curLine,curPos))});
         } else if (isSkippable(src[0])) {
             src.shift();
             curPos++;
-            if (src[0] === '\n') curLine++;
+            if (src[0] === '\n') { curLine++; curPos = 0; };
         }
-        else tokens.push({ type: TokenType.Raw, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
+        else tokens.push({ type: TokenType.Raw, value: src.shift(), range: opr(curLine, curPos++) });
     }
 
-    tokens.push({ type: TokenType.EndOfFile, value: 'EOF', pos: source.length, end: source.length, line: curLine });
+    tokens.push({ type: TokenType.EndOfFile, value: 'EOF', range:opr(curLine,0)});
     return tokens;
 }
 
@@ -127,20 +140,20 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
  * @param {string} source Source string.
  * @returns A list of tokens generated from th esource file.
  * @author efekos
- * @version 1.0.2
+ * @version 1.0.3
  * @since 0.0.1-alpha
  */
 export function tokenizeSys(source: string): Token[] {
     const src = source.split('');
     const tokens: Token[] = [];
 
-    let curPos = -1;
+    let curPos = 0;
     let curLine = 0;
 
     while (src.length > 0 && `${src[0]}${src[1]}${src[2]}` !== ':::') {
-        if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '\'') tokens.push({ type: TokenType.SingleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
-        else if (src[0] === '"') tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
+        if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '\'') tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '"') tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) });
         else if (isAlphabetic(src[0])) {
             let ident = '';
             const startPos = curPos;
@@ -150,16 +163,16 @@ export function tokenizeSys(source: string): Token[] {
             }
 
             const reserved = keywords[ident];
-            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, pos: startPos, end: curPos, line: curLine });
+            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range:tpr(pos(curLine,startPos),pos(curLine,curPos)) });
         } else if (isSkippable(src[0])) {
             src.shift();
             curPos++;
             if (src[0] === '\n') curLine++;
         }
-        else tokens.push({ type: TokenType.Raw, value: src.shift(), pos: curPos, end: ++curPos, line: curLine });
+        else tokens.push({ type: TokenType.Raw, value: src.shift(), range: opr(curLine, curPos++) });
 
     }
 
-    tokens.push({ type: TokenType.EndOfFile, value: 'eof', pos: curPos, end: ++curPos, line: curLine });
+    tokens.push({ type: TokenType.EndOfFile, value: 'eof', range: opr(curLine, curPos++) });
     return tokens;
 }

@@ -1,4 +1,4 @@
-import { Position } from './diagnosticTypes.js';
+import { Position, Range } from './diagnosticTypes.js';
 
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,
@@ -159,16 +159,14 @@ export enum TokenType {
 
 /**
  * Base token interface.
- * @version 1.0.2
+ * @version 1.0.3
  * @since 0.0.1-alpha
  * @author efekos
  */
 export interface Token {
     type: TokenType;
     value: string;
-    pos: number;
-    end: number;
-    line: number;
+    range: Range;
 }
 
 /**
@@ -524,16 +522,16 @@ export interface SyxConfigCompile {
 /**
  * An error that occured while tokenizing, parsing or compiling a file.
  */
-export class CompilerError extends Error{
-    range:Position;
-    file:string;
+export class CompilerError extends Error {
+    range: Position;
+    file: string;
 
     /**
      * An error that occured while tokenizing a file.
      * @param {Position} range Range where the error is.
      * @param {string} message Error message. 
      */
-    constructor(range:Position,message:string,file?:string) {
+    constructor(range: Position, message: string, file?: string) {
         super();
         this.range = range;
         this.message = message;
