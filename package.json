@@ -3,12 +3,12 @@
   "version": "0.0.1-alpha",
   "description": "Compiler used to compile Syntax Script projects.",
   "main": "dist/index.js",
-  "types": "dist/types.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint ./src/**/*.ts",
-    "prebuild": "npm run lint && node distDeletor.js",
+    "prebuild": "npm run lint && node distDeletor.mjs",
     "build": "tsc",
-    "postbuild": "cls && dts-bundle-generator src/index.ts -o dist/types.d.ts && echo Builded",
+    "postbuild": "cls && echo Builded",
     "prepack": "npm run build"
   },
   "repository": {
@@ -40,6 +40,5 @@
     "@typescript-eslint/parser": "^7.4.0",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.2.3"
-  },
-  "type": "module"
+  }
 }
