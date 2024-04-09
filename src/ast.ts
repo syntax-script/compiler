@@ -44,20 +44,16 @@ export namespace syxparser {
 
     let program: ProgramStatement;
 
-    let watchMode: boolean;
-
     /**
      * Parses the token list given into statements and expressions.
      * @param {Token[]} t Token list to parse.
-     * @param {boolean} watch Whether is it watch mode or not. Errors will exit process if it isn't watch mode, throwing an error otherwise.
      * @returns Main {@link ProgramStatement} containing all other statements.
      * @author efekos
-     * @version 1.0.1
+     * @version 1.0.2
      * @since 0.0.1-alpha
      */
-    export function parseTokens(t: Token[], watch: boolean): ProgramStatement {
+    export function parseTokens(t: Token[]): ProgramStatement {
         tokens = t;
-        watchMode = watch;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
         program = { body: [], type: NodeType.Program, range: { end: eof.range.end, start: { line: 0, character: 0 } } };
@@ -398,7 +394,6 @@ export namespace sysparser {
     }
 
     let program: ProgramStatement;
-    let watchMode: boolean;
 
     /**
          * Combines the start of first range with the end of second range to create a range.
@@ -415,15 +410,13 @@ export namespace sysparser {
     /**
      * Parses the token list given into statements and expressions.
      * @param {Token[]} t Token list to parse.
-     * @param {boolean} watch Whether is it watch mode or not. Errors will exit process if it isn't watch mode, throwing an error otherwise.
      * @returns Main {@link ProgramStatement} containing all other statements.
      * @author efekos
-     * @version 1.0.0
+     * @version 1.0.1
      * @since 0.0.1-alpha
      */
-    export function parseTokens(t: Token[], watch: boolean): ProgramStatement {
+    export function parseTokens(t: Token[]): ProgramStatement {
         tokens = t;
-        watchMode = watch;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
         program = { body: [], type: NodeType.Program, range: {start:{character:0,line:0},end:eof.range.end}};

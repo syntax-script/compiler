@@ -14,7 +14,6 @@ export class SyntaxScriptCompiler {
     private readonly rootDir: string;
     private readonly outDir: string;
     private readonly mainFileFormat: string;
-    private readonly watchMode: boolean;
 
     public readonly exportData: Record<string, AnyExportable[]> = {};
 
@@ -23,16 +22,14 @@ export class SyntaxScriptCompiler {
      * @param {string} rootDir Root dir to search for source files.
      * @param {string} outDir Out dir to write compiled files.
      * @param {string} format File format to compile.
-     * @param {boolean} watch Whether is it watch mode or not. Will affect how errors are handled.
      * @author efekos
-     * @version 1.0.0
+     * @version 1.0.1
      * @since 0.0.1-alpha
      */
-    constructor(rootDir: string, outDir: string, format: string, watch: boolean = false) {
+    constructor(rootDir: string, outDir: string, format: string) {
         this.rootDir = join(process.cwd(), rootDir);
         this.outDir = join(process.cwd(), outDir);
         this.mainFileFormat = format;
-        this.watchMode = watch;
     }
 
     /**
@@ -72,7 +69,7 @@ export class SyntaxScriptCompiler {
      * @since 0.0.1-alpha
      */
     public compileSyx(file: string) {
-        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString(), this.watchMode), this.watchMode);
+        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()));
         const out: AnyExportable[] = [];
 
         ast.body.forEach(statement => {
@@ -200,7 +197,7 @@ export class SyntaxScriptCompiler {
      * @version 1.0.2
      */
     public compileSys(file: string) {
-        const ast = sysparser.parseTokens(tokenizeSys(readFileSync(file).toString()), this.watchMode);
+        const ast = sysparser.parseTokens(tokenizeSys(readFileSync(file).toString()));
 
         //# Handle import statements 
         var imported: AnyExportable[] = [];

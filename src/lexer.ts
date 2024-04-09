@@ -67,14 +67,13 @@ function tpr(start: Position, end: Position): Range {
 /**
  * Tokenizes a .syx file.
  * @param {string} source Source string.
- * @param {boolean} watchMode Whether is it watch mode or not. Errors will throw an error instead of exiting if this value is set to `true`.
  * @returns A list of tokens generated from source string.
  * @author efekos
- * @version 1.0.5
+ * @version 1.0.6
  * @since 0.0.1-alpha
  * @throws LexerError if an error occurs.
  */
-export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
+export function tokenizeSyx(source: string): Token[] {
     const tokens: Token[] = [];
     const src = source.split('');
     let curPos = 0;
@@ -138,7 +137,7 @@ export function tokenizeSyx(source: string, watchMode: boolean): Token[] {
 /**
  * Tokenizes a .sys file. Stops when the file end marker (:::) is encountered.
  * @param {string} source Source string.
- * @returns A list of tokens generated from th esource file.
+ * @returns A list of tokens generated from the source file.
  * @author efekos
  * @version 1.0.3
  * @since 0.0.1-alpha
