@@ -6,7 +6,7 @@ import { tokenizeSys, tokenizeSyx } from './lexer.js';
 
 /**
  * Main class used to compile a folder containing syntax script declaration (.syx) and syntax script (.sys) files.
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
 export class SyntaxScriptCompiler {
