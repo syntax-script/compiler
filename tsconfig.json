@@ -6,8 +6,7 @@
         "moduleResolution": "nodenext",
         "target": "ESNext",
         "skipLibCheck": true,
-        "allowUnreachableCode": false,
-        "declaration": true
+        "allowUnreachableCode": false
     },
     "exclude": ["./syx/**/*"],
     "include": ["./src"]

@@ -3,11 +3,13 @@
   "version": "0.0.1-alpha",
   "description": "Compiler used to compile Syntax Script projects.",
   "main": "dist/index.js",
+  "types": "dist/types.d.ts",
   "scripts": {
     "lint": "eslint ./src/**/*.ts",
     "prebuild": "npm run lint && node distDeletor.js",
-    "build":"tsc",
-    "postbuild":"cls && echo Builded"
+    "build": "tsc",
+    "postbuild": "cls && dts-bundle-generator src/index.ts -o dist/types.d.ts && echo Builded",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
