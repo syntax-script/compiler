@@ -520,7 +520,7 @@ export interface SyxConfigCompile {
 /**
  * An error that occured while tokenizing, parsing or compiling a file.
  * @author efekos
- * @version 1.0.1
+ * @version 1.0.2
  * @since 0.0.1-alpha
  */
 export class CompilerError extends Error {
@@ -537,5 +537,18 @@ export class CompilerError extends Error {
         this.range = range;
         this.message = message;
         this.file = file;
+        this.name = 'CompilerError';
     }
+}
+
+/**
+ * Checks whether an error is a {@link CompilerError}.
+ * @param {Error} error Any error. 
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.1-alpha
+ * @returns Whether it is a {@link CompilerError} or not.
+ */
+export function isCompilerError(error:Error):error is CompilerError{
+    return error.name === 'CompilerError';
 }
