@@ -281,14 +281,12 @@ export interface ProgramStatement extends Statement {
 /**
  * Base statement interface.
  * @author efekos
- * @version 1.0.2
+ * @version 1.0.3
  * @since 0.0.1-alpha
  */
 export interface Statement {
     type: NodeType;
-    pos: number;
-    end: number;
-    line: number;
+    range:Range;
 }
 
 /**
@@ -521,17 +519,20 @@ export interface SyxConfigCompile {
 
 /**
  * An error that occured while tokenizing, parsing or compiling a file.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.1-alpha
  */
 export class CompilerError extends Error {
-    range: Position;
+    range: Range;
     file: string;
 
     /**
      * An error that occured while tokenizing a file.
-     * @param {Position} range Range where the error is.
+     * @param {Range} range Range where the error is.
      * @param {string} message Error message. 
      */
-    constructor(range: Position, message: string, file?: string) {
+    constructor(range: Range, message: string, file?: string) {
         super();
         this.range = range;
         this.message = message;
