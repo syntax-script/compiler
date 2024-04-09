@@ -7,7 +7,7 @@
     "lint": "eslint ./src/**/*.ts",
     "prebuild": "npm run lint && node distDeletor.js",
     "build":"tsc",
-    "postbuild":"clear && echo Builded"
+    "postbuild":"cls && echo Builded"
   },
   "repository": {
     "type": "git",
