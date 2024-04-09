@@ -85,14 +85,14 @@ export namespace syxparser {
 
     /**
      * Combines the start of first range with the end of second range to create a range.
-     * @param {Range} starterRange 
-     * @param {Range} enderRange
+     * @param starterRange Start range.
+     * @param enderRange End range.
      * @author efekos
      * @since 0.0.1-alpha
-     * @version 1.0.0
+     * @version 1.0.1
      */
     export function combineTwo(starter: Token | Range, ender: Token | Range): Range {
-        return { start: (starter instanceof Range ? starter as Range : (starter as Token).range).start, end: (ender instanceof Range ? ender as Range : (ender as Token).range).end };
+        return { start: ('range' in starter ? starter.range : starter).start, end: ('range' in ender ? ender.range : ender).end };
     }
 
     /**
@@ -395,16 +395,17 @@ export namespace sysparser {
 
     let program: ProgramStatement;
 
+
     /**
-         * Combines the start of first range with the end of second range to create a range.
-         * @param {Range} starterRange 
-         * @param {Range} enderRange
-         * @author efekos
-         * @since 0.0.1-alpha
-         * @version 1.0.0
-         */
+     * Combines the start of first range with the end of second range to create a range.
+     * @param starterRange Start range.
+     * @param enderRange End range.
+     * @author efekos
+     * @since 0.0.1-alpha
+     * @version 1.0.1
+     */
     export function combineTwo(starter: Token | Range, ender: Token | Range): Range {
-        return { start: (starter instanceof Range ? starter as Range : (starter as Token).range).start, end: (ender instanceof Range ? ender as Range : (ender as Token).range).end };
+        return { start: ('range' in starter ? starter.range : starter).start, end: ('range' in ender ? ender.range : ender).end };
     }
 
     /**
@@ -419,7 +420,7 @@ export namespace sysparser {
         tokens = t;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
-        program = { body: [], type: NodeType.Program, range: {start:{character:0,line:0},end:eof.range.end}};
+        program = { body: [], type: NodeType.Program, range: { start: { character: 0, line: 0 }, end: eof.range.end } };
 
         while (canGo()) {
             parseStatement();
