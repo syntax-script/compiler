@@ -5,7 +5,8 @@
 # Dev-only or unrelated files
 .gitignore
 tsconfig.json
-.eslintrc.json
+.eslintrc
+distDeletor.js
 
 # Hidden folders
 /.vscode
