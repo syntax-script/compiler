@@ -224,6 +224,22 @@ export interface DiagnosticRelatedInformation {
     message: string;
 }
 
+/**
+ * Represents a location inside a resource, such as a line inside a text file.
+ * @author Microsoft
+ * @see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#location
+ * @since 3.17.0
+ */
+export interface Location {
+	uri: DocumentUri;
+	range: Range;
+}
+
+/**
+ * A document uri.
+ */
+export type DocumentUri = string;
+
 
 /**
  * The document diagnostic report kinds.
