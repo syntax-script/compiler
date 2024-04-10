@@ -1,4 +1,4 @@
-import { Functionary, Rule } from './index';
+import { Functionary, Rule, RuleType } from './index';
 
 const rules: Rule[] = [
     {
@@ -29,9 +29,12 @@ const func: Functionary[] = [
     }
 ];
 
+const regexes = { boolean: /^(true|false)$/, keyword: /[a-zA-Z]/ };
+
 export namespace dictionary {
 
     export const Rules: Rule[] = rules;
+    export const RuleTypeRegexes: Record<RuleType, RegExp> = regexes;
     export const PrimitiveTypes: string[] = ['int', 'decimal', 'boolean', 'string'];
     export const Keywords: string[] = ['export', 'rule', 'keyword', 'import', 'operator', 'function', 'global'];
     export const Functionaries: Functionary[] = func;
