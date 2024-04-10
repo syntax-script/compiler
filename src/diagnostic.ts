@@ -14,7 +14,7 @@ import { readFileSync } from 'fs';
 export function createSyntaxScriptDiagnosticReport(filePath: string,fileContent?:string): FullDocumentDiagnosticReport {
     const isSyx: boolean = filePath.endsWith('.syx');
 
-    const items:Diagnostic[] = [{message:'Base',range:{end:{character:0,line:1},start:{character:0,line:0}},severity:DiagnosticSeverity.Warning,source:'syntax-script'}];
+    const items:Diagnostic[] = [];
 
     try {
 
