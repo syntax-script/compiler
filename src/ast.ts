@@ -142,8 +142,9 @@ export namespace syxparser {
 
                     if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
                     else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
+                    else if (t.type === TokenType.Comma) {}
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
-                    else throw new CompilerError(t.range, 'Unexpected token.');
+                    else throw new CompilerError(t.range, `Expected comma or identifier but found ${t.type}.`);
                 }
                 tokens.shift(); // skip CloseParen
 
@@ -169,6 +170,7 @@ export namespace syxparser {
 
                     if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
                     else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
+                    else if (t.type === TokenType.Comma) {}
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
                     else throw new CompilerError(t.range, 'Unexpected token.');
                 }
