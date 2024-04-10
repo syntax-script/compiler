@@ -1,30 +1,6 @@
 import { BraceExpression, CompileStatement, CompilerError, ExportStatement, Expression, FunctionStatement, ImportsStatement, KeywordStatement, Node, NodeType, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, SquareExpression, StringExpression, Token, TokenType, VariableExpression } from './types.js';
 import { Range } from './diagnosticTypes.js';
-
-const valueTypeDefinitions = {
-    boolean: { value: 'boolean', regex: /^(true|false)$/ },
-    keyword: { value: 'keyword' }
-};
-
-export const SyxRuleRegistry: Record<string, { value: string, regex?: RegExp; }> = {
-
-    /**
-     * Determines whether it is possible to return a value using functons.
-     * @author efekos
-     * @version 1.0.0
-     * @since 0.0.1-alpha
-     */
-    'function-value-return-enabled': valueTypeDefinitions.boolean,
-
-    /**
-     * Determines the keyword that should be used to return values from a function, similiar to `return` keyword
-     * from popular languages such as ts,js,py,java etc.
-     * @author efekos
-     * @version 1.0.0
-     * @since 0.0.1-alpha
-     */
-    'function-value-return-keyword': valueTypeDefinitions.keyword
-};
+import { dictionary } from './dictionary/dictionary.js';
 
 
 export namespace syxparser {
@@ -216,28 +192,28 @@ export namespace syxparser {
                 return node({ type: NodeType.Keyword, word: ex.value, range: combineTwo(token, ex.range) }, put);
             } else if (token.type === TokenType.RuleKeyword) {
                 const ruleExpr = parseExpression(false, false);
-                if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, 'Expected string after \'rule\'.'); }
+                if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, 'Expected rule name as string after \'rule\'.'); }
                 if (at().value !== ':') throw new CompilerError(at().range, 'Expected \':\' after rule name.');
                 tokens.shift();
-                if (!(ruleExpr.value in SyxRuleRegistry)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`);
-                const rule = SyxRuleRegistry[ruleExpr.value];
+                if (!dictionary.Rules.find(r=>r.name===ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`);
+                const rule = dictionary.Rules.find(r=>r.name===ruleExpr.value);
 
-                if (rule.value === 'boolean') {
-                    const boolEx = parseExpression(false, false, true);
-                    if (!(boolEx.type === NodeType.String && rule.regex.test(boolEx.value))) { throw new CompilerError(boolEx.range, 'Expected boolean as rule value.'); }
+                if (rule.type === 'boolean') {
+                    const boolEx = parseExpression(false, false, true) as Expression;
+                    if (!(boolEx.type === NodeType.String && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) { throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`); }
 
 
                     if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, 'Expected semicolon after rule statement.');
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, range: combineTwo(token, tokens.shift()) }, put);
-                } else if (rule.value === 'keyword') {
-                    const keyEx = parseExpression(false, false, true);
+                } else if (rule.type === 'keyword') {
+                    const keyEx = parseExpression(false, false, true) as Expression;
                     if (!(
                         keyEx.type === NodeType.String &&
                         program.body.some(s =>
                             (s.type === NodeType.Keyword && (s as KeywordStatement).word === keyEx.value) ||
                             (s.type === NodeType.Export && (s as ExportStatement).body.type === NodeType.Keyword && ((s as ExportStatement).body as KeywordStatement).word === keyEx.value)
                         )
-                    )) throw new CompilerError(keyEx.range, 'Unknown keyword.');
+                    )) throw new CompilerError(keyEx.range, `Can't find keyword ${keyEx.value}.`);
 
                     if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, 'Expected semicolon after rule statement.');
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, range: combineTwo(token, tokens.shift()) }, put);
