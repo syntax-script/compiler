@@ -1,4 +1,4 @@
-import {Diagnostic,DiagnosticSeverity,DocumentDiagnosticReportKind,FullDocumentDiagnosticReport} from 'lsp-types';
+import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport } from 'lsp-types';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
 import { isCompilerError } from './types.js';
@@ -12,23 +12,45 @@ import { readFileSync } from 'fs';
  * @param {string} fileContent Content of the file if it is already fetched. 
  * @returns A diagnostic report language servers can use.
  */
-export function createSyntaxScriptDiagnosticReport(filePath: string,fileContent?:string): FullDocumentDiagnosticReport {
+export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent?: string): FullDocumentDiagnosticReport {
     const isSyx: boolean = filePath.endsWith('.syx');
 
-    const items:Diagnostic[] = [];
+    const items: Diagnostic[] = [];
 
     try {
 
-        const content = fileContent??readFileSync(filePath).toString();
+        const content = fileContent ?? readFileSync(filePath).toString();
         const tokens = (isSyx ? tokenizeSyx : tokenizeSys)(content);
         (isSyx ? syxparser : sysparser).parseTokens(tokens);
 
     } catch (error) {
         if (isCompilerError(error)) {
-            items.push({ message: error.message, range: error.range, severity: DiagnosticSeverity.Error, source: 'syntax-script' });
+            items.push({
+                message: error.message,
+                range: error.range,
+                severity: DiagnosticSeverity.Error,
+                source: 'syntax-script',
+                data: [
+                    {
+                        title: 'Test Action',
+                        kind: CodeActionKind.QuickFix,
+                        edit: {
+                            changes: {
+                                [filePath]: [
+                                    {
+                                        range:error.range,
+                                        newText:'test'
+                                    }
+                                ]
+                            }
+                        }
+
+                    }
+                ] as CodeAction[]
+            });
         }
     } finally {
-        return {items,kind:DocumentDiagnosticReportKind.Full};
+        return { items, kind: DocumentDiagnosticReportKind.Full };
     }
 
 }
