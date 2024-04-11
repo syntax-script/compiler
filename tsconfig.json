@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "module": "CommonJS",
+        "module": "NodeNext",
         "rootDir": "./src",
         "outDir": "./dist",
-        "moduleResolution": "Classic",
+        "moduleResolution": "NodeNext",
         "target": "ESNext",
         "skipLibCheck": true,
         "allowUnreachableCode": false,

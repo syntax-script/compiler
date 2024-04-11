@@ -1,8 +1,9 @@
-import { Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport } from './diagnosticTypes.js';
+import {Diagnostic,DiagnosticSeverity,DocumentDiagnosticReportKind,FullDocumentDiagnosticReport} from 'lsp-types';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
 import { isCompilerError } from './types.js';
 import { readFileSync } from 'fs';
+
 
 
 /**

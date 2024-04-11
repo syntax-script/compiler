@@ -1,5 +1,5 @@
 import { CompilerError, Token, TokenType } from './types.js';
-import { Position, Range } from './diagnosticTypes.js';
+import { Position, Range } from 'lsp-types';
 
 const keywords: Record<string, TokenType> = {
     operator: TokenType.OperatorKeyword,

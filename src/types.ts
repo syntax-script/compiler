@@ -1,4 +1,4 @@
-import { Position, Range } from './diagnosticTypes.js';
+import { Range } from 'lsp-types';
 
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,

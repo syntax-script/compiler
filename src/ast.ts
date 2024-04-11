@@ -1,5 +1,5 @@
 import { BraceExpression, CompileStatement, CompilerError, ExportStatement, Expression, FunctionStatement, ImportsStatement, KeywordStatement, Node, NodeType, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, SquareExpression, StringExpression, Token, TokenType, VariableExpression } from './types.js';
-import { Range } from './diagnosticTypes.js';
+import { Range } from 'lsp-types';
 import { dictionary } from './dictionary/dictionary.js';
 
 

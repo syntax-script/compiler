@@ -1,7 +1,6 @@
 import { AnyExportable, Export, ExportType, Function, Keyword, OneParameterMethod, Operator, ReturnerMethod, SyntaxScriptCompiler, escapeRegex } from './compiler.js';
 import { BaseRule,BooleanRule,Functionary,FunctionaryValueType,Rule,RuleType,StringRule, dictionary } from './dictionary/index.js';
 import { BraceExpression, CompileStatement, ExportStatement, Expression, FunctionStatement, ImportStatement, ImportsStatement, KeywordStatement, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, RuleStatement, SquareExpression, Statement, StringExpression, VariableExpression, WhitespaceIdentifierExpression } from './types.js';
-import { CodeDescription, Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag, DocumentDiagnosticReportKind, DocumentUri, FullDocumentDiagnosticReport, Location, Position, Range, URI } from './diagnosticTypes.js';
 import { CompilerError, isCompilerError } from './types.js';
 import { Node, NodeType, Token, TokenType } from './types.js';
 import { SyxConfig, SyxConfigCompile } from './types.js';
@@ -19,7 +18,6 @@ export {Functionary,FunctionaryValueType};
 
 export { SyntaxScriptCompiler, ExportType };
 export { AnyExportable, Export, Function, Keyword, OneParameterMethod, Operator, ReturnerMethod };
-export { Diagnostic, FullDocumentDiagnosticReport, CodeDescription, DiagnosticRelatedInformation, DiagnosticSeverity, DiagnosticTag, DocumentDiagnosticReportKind, DocumentUri, Location, Position, Range, URI };
 
 export { CompilerError };
 export { Token, TokenType, Node, NodeType };
