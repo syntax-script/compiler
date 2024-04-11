@@ -34,7 +34,6 @@
                 "publicOnly": true,
                 "enableFixer": false,
                 "contexts": [
-                    "Property",
                     "MethodDeclaration",
                     "ClassDeclaration",
                     "FunctionDeclaration",
@@ -43,7 +42,9 @@
                     "MethodDefinition",
                     "TypeAliasDeclaration",
                     "TSInterfaceDeclaration",
+                    "TSInterfaceDeclaration > Property",
                     "InterfaceDeclaration",
+                    "InterfaceDeclaration > Property",
                     "PropertySignature",
                     "TSTypeAliasDeclaration",
                     "EnumDeclaration",
