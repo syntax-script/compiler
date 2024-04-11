@@ -81,7 +81,7 @@ export function tokenizeSyx(source: string): Token[] {
 
     while (src.length > 0) {
         if (src[0] === '/' && src[1] === '/') {
-            while (src.length > 0 && src[0] !== '\n' as string) {
+            while (src.length > 0 && src[0] as string !== '\n' ) {
                 src.shift();
             }
         }
@@ -100,7 +100,7 @@ export function tokenizeSyx(source: string): Token[] {
         else if (src[0] === '|') tokens.push({ type: TokenType.VarSeperator, value: src.shift(), range: opr(curLine, curPos++) });
         else if (src[0] === '+' && chars.includes(src[1])) {
             if (src[1] === 's') tokens.push({ type: TokenType.WhitespaceIdentifier, value: '+s', range: tpr(pos(curLine, curPos), pos(curLine, curPos + 2)) });
-            else throw new CompilerError(opr(curLine,curPos), `Unexpected identifier: '${src[1]}'`);
+            else throw new CompilerError(opr(curLine,curPos), `Unexpected regex identifier after '+': ${src[1]}`);
             curPos += 2;
             src.shift(); src.shift();
         } else if (isInt(src[0])) {
