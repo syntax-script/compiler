@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "eslint ./src/**/*.ts",
+    "lint": "eslint ./src/**/*.ts --fix",
     "prebuild": "npm run lint && node distDeletor.mjs",
     "build": "tsc",
     "postbuild": "cls && echo Builded",
@@ -39,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "eslint": "^8.57.0",
-    "eslint-plugin-jsdoc": "^48.2.3"
+    "eslint-plugin-jsdoc": "^48.2.3",
+    "lsp-types": "^3.17.0-f3"
   }
 }
