@@ -88,6 +88,8 @@ export namespace syxparser {
 
                 const ex = parseExpression(false, false);
                 if (ex.type !== NodeType.String) throw new CompilerError(ex.range, 'Expected file path after import statement.');
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`);
+                tokens.shift();
                 return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range) }, put);
 
             } else if (token.type === TokenType.OperatorKeyword) {
@@ -118,13 +120,13 @@ export namespace syxparser {
 
                     if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
                     else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
-                    else if (t.type === TokenType.Comma) {}
+                    else if (t.type === TokenType.Comma) { }
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
                     else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`);
                 }
                 tokens.shift(); // skip CloseParen
 
-                if(statement.formats.length===0) throw new CompilerError(token.range,'At least one file type is required.');
+                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.');
 
                 while (at().type !== TokenType.Semicolon) {
                     const expr = parseExpression(false, false);
@@ -148,13 +150,13 @@ export namespace syxparser {
 
                     if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
                     else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
-                    else if (t.type === TokenType.Comma) {}
+                    else if (t.type === TokenType.Comma) { }
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
                     else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`);
                 }
                 tokens.shift(); // skip CloseParen
 
-                if(statement.formats.length===0) throw new CompilerError(token.range,'At least one file type is required.');
+                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.');
 
 
                 const moduleExpr = parseExpression(false, false) as Expression;
@@ -200,8 +202,8 @@ export namespace syxparser {
                 if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, `Expected rule name as string after 'rule', found ${ruleExpr.value}.`); }
                 if (at().value !== ':') throw new CompilerError(at().range, `Expected \':\' after rule name, found ${at().value}.`);
                 tokens.shift();
-                if (!dictionary.Rules.find(r=>r.name===ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`);
-                const rule = dictionary.Rules.find(r=>r.name===ruleExpr.value);
+                if (!dictionary.Rules.find(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`);
+                const rule = dictionary.Rules.find(r => r.name === ruleExpr.value);
 
                 if (rule.type === 'boolean') {
                     const boolEx = parseExpression(false, false, true) as Expression;
@@ -263,7 +265,7 @@ export namespace syxparser {
             tokens.shift();
             while (at().type !== TokenType.SingleQuote) {
                 const _t = tokens.shift();
-                if(_t.type===TokenType.EndOfFile) throw new CompilerError(combineTwo(range,{start:{line:0,character:0},end:{character:range.end.character+s.length,line:range.end.line}}),'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
 
                 s += _t.value;
             }
@@ -277,8 +279,8 @@ export namespace syxparser {
             tokens.shift();
             while (at().type !== TokenType.DoubleQuote) {
                 const _t = tokens.shift();
-                if(_t.type===TokenType.EndOfFile) throw new CompilerError(combineTwo(range,{start:{line:0,character:0},end:{character:range.end.character+s.length,line:range.end.line}}),'Strings must be closed.');
-                
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+
                 s += _t.value;
             }
 
@@ -447,6 +449,8 @@ export namespace sysparser {
 
                 const ex = parseExpression(false, false) as Expression;
                 if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected string after import statement, found ${ex.value}.`);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`);
+                tokens.shift();
                 return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range) }, put);
 
             }
@@ -489,7 +493,7 @@ export namespace sysparser {
             tokens.shift();
             while (at().type !== TokenType.SingleQuote) {
                 const _t = tokens.shift();
-                if(_t.type===TokenType.EndOfFile) throw new CompilerError(combineTwo(range,{start:{line:0,character:0},end:{character:range.end.character+s.length,line:range.end.line}}),'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
 
                 s += _t.value;
             }
@@ -503,8 +507,8 @@ export namespace sysparser {
             tokens.shift();
             while (at().type !== TokenType.DoubleQuote) {
                 const _t = tokens.shift();
-                if(_t.type===TokenType.EndOfFile) throw new CompilerError(combineTwo(range,{start:{line:0,character:0},end:{character:range.end.character+s.length,line:range.end.line}}),'Strings must be closed.');
-                
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+
                 s += _t.value;
             }
 
