@@ -24,17 +24,18 @@ export namespace syxparser {
     /**
      * Parses the token list given into statements and expressions.
      * @param {Token[]} t Token list to parse.
+     * @param {string} _filePath Path of the file that is being parsed. 
      * @returns Main {@link ProgramStatement} containing all other statements.
      * @author efekos
-     * @version 1.0.2
+     * @version 1.0.3
      * @since 0.0.1-alpha
      */
-    export function parseTokens(t: Token[],filePath:string): ProgramStatement {
+    export function parseTokens(t: Token[],_filePath:string): ProgramStatement {
         tokens = t;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
         program = { body: [], type: NodeType.Program, range: { end: eof.range.end, start: { line: 0, character: 0 } } };
-        this.filePath = filePath;
+        filePath = _filePath;
 
         while (canGo()) {
             parseStatement();
@@ -404,14 +405,15 @@ export namespace sysparser {
      * @param {Token[]} t Token list to parse.
      * @returns Main {@link ProgramStatement} containing all other statements.
      * @author efekos
-     * @version 1.0.1
+     * @version 1.0.2
      * @since 0.0.1-alpha
      */
-    export function parseTokens(t: Token[]): ProgramStatement {
+    export function parseTokens(t: Token[],_filePath:string): ProgramStatement {
         tokens = t;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
         program = { body: [], type: NodeType.Program, range: { start: { character: 0, line: 0 }, end: eof.range.end } };
+        filePath = _filePath;
 
         while (canGo()) {
             parseStatement();

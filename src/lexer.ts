@@ -69,7 +69,7 @@ function tpr(start: Position, end: Position): Range {
  * @param {string} source Source string.
  * @returns A list of tokens generated from source string.
  * @author efekos
- * @version 1.0.6
+ * @version 1.0.7
  * @since 0.0.1-alpha
  * @throws LexerError if an error occurs.
  */
@@ -77,7 +77,7 @@ export function tokenizeSyx(source: string): Token[] {
     const tokens: Token[] = [];
     const src = source.split('');
     let curPos = 0;
-    let curLine = 0;
+    let curLine = 1;
 
     while (src.length > 0) {
         if (src[0] === '/' && src[1] === '/') {
@@ -138,7 +138,7 @@ export function tokenizeSyx(source: string): Token[] {
  * @param {string} source Source string.
  * @returns A list of tokens generated from the source file.
  * @author efekos
- * @version 1.0.3
+ * @version 1.0.4
  * @since 0.0.1-alpha
  */
 export function tokenizeSys(source: string): Token[] {
@@ -146,7 +146,7 @@ export function tokenizeSys(source: string): Token[] {
     const tokens: Token[] = [];
 
     let curPos = 0;
-    let curLine = 0;
+    let curLine = 1;
 
     while (src.length > 0 && `${src[0]}${src[1]}${src[2]}` !== ':::') {
         if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });

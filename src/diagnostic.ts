@@ -1,4 +1,4 @@
-import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport } from 'lsp-types';
+import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport,Range } from 'lsp-types';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
 import { isCompilerError } from './types.js';
@@ -27,7 +27,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         if (isCompilerError(error)) {
             items.push({
                 message: error.message,
-                range: error.range,
+                range: subRange(error.range),
                 severity: DiagnosticSeverity.Error,
                 source: 'syntax-script',
                 data: [
@@ -38,7 +38,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
                             changes: {
                                 [filePath]: [
                                     {
-                                        range:error.range,
+                                        range:subRange(error.range),
                                         newText:'test'
                                     }
                                 ]
@@ -53,4 +53,14 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         return { items, kind: DocumentDiagnosticReportKind.Full };
     }
 
+}
+
+
+/**
+ * Modifies the given range to be zero-based.
+ * @param {Range} r Any range. 
+ * @returns Same range with every value decreased by 1.
+ */
+function subRange(r:Range):Range {
+    return {start:{character:r.start.character-1,line:r.start.line-1},end:{character:r.end.character-1,line:r.end.line-1}};
 }
