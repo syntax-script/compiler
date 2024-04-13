@@ -19,6 +19,7 @@ export namespace syxparser {
     }
 
     let program: ProgramStatement;
+    let filePath: string;
 
     /**
      * Parses the token list given into statements and expressions.
@@ -28,12 +29,12 @@ export namespace syxparser {
      * @version 1.0.2
      * @since 0.0.1-alpha
      */
-    export function parseTokens(t: Token[]): ProgramStatement {
+    export function parseTokens(t: Token[],filePath:string): ProgramStatement {
         tokens = t;
 
         const eof = t.find(r => r.type === TokenType.EndOfFile);
         program = { body: [], type: NodeType.Program, range: { end: eof.range.end, start: { line: 0, character: 0 } } };
-
+        this.filePath = filePath;
 
         while (canGo()) {
             parseStatement();
@@ -87,8 +88,8 @@ export namespace syxparser {
             if (token.type === TokenType.ImportKeyword) {
 
                 const ex = parseExpression(false, false);
-                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, 'Expected file path after import statement.');
-                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`);
+                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, 'Expected file path after import statement.',filePath);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`,filePath);
                 tokens.shift();
                 return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range) }, put);
 
@@ -102,8 +103,8 @@ export namespace syxparser {
                 }
 
                 const braceExpr = parseExpression(false);
-                if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Expected braces after operator regex.');
-                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside of operator statement.'); });
+                if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Expected braces after operator regex.',filePath);
+                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside of operator statement.'); },filePath);
 
                 statement.body = braceExpr.body;
                 statement.range = combineTwo(token, braceExpr.range);
@@ -112,21 +113,21 @@ export namespace syxparser {
             } else if (token.type === TokenType.CompileKeyword) {
                 const statement: CompileStatement = { type: NodeType.Compile, formats: [], body: [], range: defaultRange };
 
-                if (at().type !== TokenType.OpenParen) throw new CompilerError(at().range, 'Compile statement require parens.');
+                if (at().type !== TokenType.OpenParen) throw new CompilerError(at().range, 'Compile statement require parens.',filePath);
 
                 tokens.shift(); // skip OpenParen
                 while (at().type !== TokenType.CloseParen) {
                     const t = tokens.shift();
 
-                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
-                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
+                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.',filePath);
+                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.',filePath);
                     else if (t.type === TokenType.Comma) { }
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
-                    else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`);
+                    else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`,filePath);
                 }
                 tokens.shift(); // skip CloseParen
 
-                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.');
+                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.',filePath);
 
                 while (at().type !== TokenType.Semicolon) {
                     const expr = parseExpression(false, false);
@@ -137,55 +138,55 @@ export namespace syxparser {
                 return node(statement, put);
             } else if (token.type === TokenType.ExportKeyword) {
                 const stmt = parseStatement(false);
-                if (!exportable.includes(stmt.type)) throw new CompilerError(stmt.range, 'Expected exportable statement after \'export\'.');
+                if (!exportable.includes(stmt.type)) throw new CompilerError(stmt.range, 'Expected exportable statement after \'export\'.',filePath);
                 return node({ type: NodeType.Export, body: stmt, range: combineTwo(token, stmt.range) }, put);
             } else if (token.type === TokenType.ImportsKeyword) {
                 const statement: ImportsStatement = { type: NodeType.Imports, formats: [], module: '', range: defaultRange };
 
-                if (at().type !== TokenType.OpenParen) throw new CompilerError(at().range, 'Imports statement require parens.');
+                if (at().type !== TokenType.OpenParen) throw new CompilerError(at().range, 'Imports statement require parens.',filePath);
 
                 tokens.shift(); // skip OpenParen
                 while (at().type !== TokenType.CloseParen) {
                     const t = tokens.shift();
 
-                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.');
-                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.');
+                    if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.',filePath);
+                    else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.',filePath);
                     else if (t.type === TokenType.Comma) { }
                     else if (t.type === TokenType.Identifier) statement.formats.push(t.value);
-                    else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`);
+                    else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`,filePath);
                 }
                 tokens.shift(); // skip CloseParen
 
-                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.');
+                if (statement.formats.length === 0) throw new CompilerError(token.range, 'At least one file type is required.',filePath);
 
 
                 const moduleExpr = parseExpression(false, false) as Expression;
 
-                if (moduleExpr.type !== NodeType.String) { throw new CompilerError(moduleExpr.range, `Expected string after parens of imports statement, found '${moduleExpr.value}'.`); }
+                if (moduleExpr.type !== NodeType.String) throw new CompilerError(moduleExpr.range, `Expected string after parens of imports statement, found '${moduleExpr.value}'.`,filePath);
 
                 statement.module = moduleExpr.value;
                 statement.range = combineTwo(token, moduleExpr.range);
 
-                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after imports statement, found '${at().value}'.`);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after imports statement, found '${at().value}'.`,filePath);
                 tokens.shift();
 
                 return node(statement, put);
             } else if (token.type === TokenType.FunctionKeyword) {
                 const statement: FunctionStatement = { type: NodeType.Function, arguments: [], name: '', body: [], range: defaultRange };
 
-                if (at().type !== TokenType.Identifier) throw new CompilerError(at().range, `Expected identifier after function statement, found '${at().value}'.`);
+                if (at().type !== TokenType.Identifier) throw new CompilerError(at().range, `Expected identifier after function statement, found '${at().value}'.`,filePath);
                 statement.name = at().value;
                 tokens.shift();
 
                 while (at().type !== TokenType.OpenBrace) {
                     const expr = parseExpression(false, false) as Expression;
-                    if (expr.type !== NodeType.PrimitiveType) throw new CompilerError(expr.range, `Expected argument types after function name, found ${expr.value}.`);
+                    if (expr.type !== NodeType.PrimitiveType) throw new CompilerError(expr.range, `Expected argument types after function name, found ${expr.value}.`,filePath);
                     statement.arguments.push((expr as PrimitiveTypeExpression).value);
                 }
 
                 const braceExpr = parseExpression(false);
-                if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Function statement requires braces.');
-                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside a function statement.'); });
+                if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Function statement requires braces.',filePath);
+                braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside a function statement.',filePath); });
 
                 statement.body = braceExpr.body;
                 statement.range = combineTwo(token, braceExpr.range);
@@ -193,24 +194,24 @@ export namespace syxparser {
                 return node(statement, put);
             } else if (token.type === TokenType.KeywordKeyword) {
                 const ex = parseExpression(false, false, true) as Expression;
-                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected identifier after keyword statement, found '${ex.value}'.`);
-                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after statement, found '${at().value}'.`);
+                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected identifier after keyword statement, found '${ex.value}'.`,filePath);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after statement, found '${at().value}'.`,filePath);
                 tokens.shift(); // skip semicolon
                 return node({ type: NodeType.Keyword, word: ex.value, range: combineTwo(token, ex.range) }, put);
             } else if (token.type === TokenType.RuleKeyword) {
                 const ruleExpr = parseExpression(false, false) as Expression;
-                if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, `Expected rule name as string after 'rule', found ${ruleExpr.value}.`); }
-                if (at().value !== ':') throw new CompilerError(at().range, `Expected \':\' after rule name, found ${at().value}.`);
+                if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, `Expected rule name as string after 'rule', found ${ruleExpr.value}.`,filePath); }
+                if (at().value !== ':') throw new CompilerError(at().range, `Expected \':\' after rule name, found ${at().value}.`,filePath);
                 tokens.shift();
-                if (!dictionary.Rules.find(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`);
+                if (!dictionary.Rules.find(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`,filePath);
                 const rule = dictionary.Rules.find(r => r.name === ruleExpr.value);
 
                 if (rule.type === 'boolean') {
                     const boolEx = parseExpression(false, false, true) as Expression;
-                    if (!(boolEx.type === NodeType.String && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) { throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`); }
+                    if (!(boolEx.type === NodeType.String && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) { throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`,filePath); }
 
 
-                    if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found '${at().value}'.`);
+                    if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found '${at().value}'.`,filePath);
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, range: combineTwo(token, tokens.shift()) }, put);
                 } else if (rule.type === 'keyword') {
                     const keyEx = parseExpression(false, false, true) as Expression;
@@ -220,9 +221,9 @@ export namespace syxparser {
                             (s.type === NodeType.Keyword && (s as KeywordStatement).word === keyEx.value) ||
                             (s.type === NodeType.Export && (s as ExportStatement).body.type === NodeType.Keyword && ((s as ExportStatement).body as KeywordStatement).word === keyEx.value)
                         )
-                    )) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`);
+                    )) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`,filePath);
 
-                    if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found ${at().value}.`);
+                    if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found ${at().value}.`,filePath);
                     return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, range: combineTwo(token, tokens.shift()) }, put);
                 }
             }
@@ -265,7 +266,7 @@ export namespace syxparser {
             tokens.shift();
             while (at().type !== TokenType.SingleQuote) {
                 const _t = tokens.shift();
-                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.',filePath);
 
                 s += _t.value;
             }
@@ -279,7 +280,7 @@ export namespace syxparser {
             tokens.shift();
             while (at().type !== TokenType.DoubleQuote) {
                 const _t = tokens.shift();
-                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.',filePath);
 
                 s += _t.value;
             }
@@ -289,9 +290,9 @@ export namespace syxparser {
         } else if (tt === TokenType.OpenDiamond) {
 
             const newToken = at(1);
-            if (newToken.type !== TokenType.Identifier) throw new CompilerError(newToken.range, `Expected identifier after '<', found '${newToken.value}'.`);
-            if (!newToken.value.match(primitiveTypes)) throw new CompilerError(newToken.range, `Expected primitive type identifier after '<', found '${newToken.value}'`);
-            if (at(2).type !== TokenType.CloseDiamond) throw new CompilerError(at(2).range, `Expected '>' after primitive type identifier, found '${at(2).value}'`);
+            if (newToken.type !== TokenType.Identifier) throw new CompilerError(newToken.range, `Expected identifier after '<', found '${newToken.value}'.`,filePath);
+            if (!newToken.value.match(primitiveTypes)) throw new CompilerError(newToken.range, `Expected primitive type identifier after '<', found '${newToken.value}'`,filePath);
+            if (at(2).type !== TokenType.CloseDiamond) throw new CompilerError(at(2).range, `Expected '>' after primitive type identifier, found '${at(2).value}'`,filePath);
             const t = tokens.shift();
             tokens.shift();
 
@@ -339,7 +340,7 @@ export namespace syxparser {
 
         } else if (tt === TokenType.Identifier && at(1).type === TokenType.VarSeperator) {
 
-            if (at(2).type !== TokenType.IntNumber) throw new CompilerError(at(2).range, `Expected index after ${at().value} variable, found ${at(2).value}.`);
+            if (at(2).type !== TokenType.IntNumber) throw new CompilerError(at(2).range, `Expected index after ${at().value} variable, found ${at(2).value}.`,filePath);
 
             const id = tokens.shift(); // id
             tokens.shift(); // sep
@@ -348,13 +349,13 @@ export namespace syxparser {
 
             return node(expr, put);
         } else if (keywords.includes(tt)) {
-            if (!statements) throw new CompilerError(at().range, 'Statement not allowed here.');
+            if (!statements) throw new CompilerError(at().range, 'Statement not allowed here.',filePath);
             return parseStatement();
         } else if (tt === TokenType.Identifier && expectIdentifier) {
             const { value, range } = tokens.shift();
             return node({ type: NodeType.String, value, range }, put);
         }
-        else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`);
+        else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`,filePath);
 
 
     }
@@ -383,6 +384,7 @@ export namespace sysparser {
     }
 
     let program: ProgramStatement;
+    let filePath: string;
 
 
     /**
@@ -448,8 +450,8 @@ export namespace sysparser {
             if (token.type === TokenType.ImportKeyword) {
 
                 const ex = parseExpression(false, false) as Expression;
-                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected string after import statement, found ${ex.value}.`);
-                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`);
+                if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected string after import statement, found ${ex.value}.`,filePath);
+                if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`,filePath);
                 tokens.shift();
                 return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range) }, put);
 
@@ -493,7 +495,7 @@ export namespace sysparser {
             tokens.shift();
             while (at().type !== TokenType.SingleQuote) {
                 const _t = tokens.shift();
-                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.',filePath);
 
                 s += _t.value;
             }
@@ -507,7 +509,7 @@ export namespace sysparser {
             tokens.shift();
             while (at().type !== TokenType.DoubleQuote) {
                 const _t = tokens.shift();
-                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.');
+                if (_t.type === TokenType.EndOfFile) throw new CompilerError(combineTwo(range, { start: { line: 0, character: 0 }, end: { character: range.end.character + s.length, line: range.end.line } }), 'Strings must be closed.',filePath);
 
                 s += _t.value;
             }
@@ -515,10 +517,10 @@ export namespace sysparser {
             return node({ type: NodeType.String, value: s, range: combineTwo(range, tokens.shift()) }, put);
 
         } else if (keywords.includes(tt)) {
-            if (!statements) throw new CompilerError(at().range, 'Statements are not allowed here.');
+            if (!statements) throw new CompilerError(at().range, 'Statements are not allowed here.',filePath);
             return parseStatement();
         }
-        else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`);
+        else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`,filePath);
 
 
     }

@@ -69,7 +69,7 @@ export class SyntaxScriptCompiler {
      * @since 0.0.1-alpha
      */
     public compileSyx(file: string) {
-        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()));
+        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()),file);
         const out: AnyExportable[] = [];
 
         ast.body.forEach(statement => {

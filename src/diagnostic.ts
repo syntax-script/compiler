@@ -21,7 +21,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
 
         const content = fileContent ?? readFileSync(filePath).toString();
         const tokens = (isSyx ? tokenizeSyx : tokenizeSys)(content);
-        (isSyx ? syxparser : sysparser).parseTokens(tokens);
+        (isSyx ? syxparser : sysparser).parseTokens(tokens,filePath);
 
     } catch (error) {
         if (isCompilerError(error)) {
