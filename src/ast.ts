@@ -152,74 +152,12 @@ export namespace syxparser {
 
         if (tt === TokenType.SingleQuote) return ExpressionParser.parseSingleQuotedString(this, put);
         else if (tt === TokenType.DoubleQuote) return ExpressionParser.parseDoubleQuotedString(this, put);
-        else if (tt === TokenType.OpenDiamond) {
-
-            const newToken = at(1);
-            if (newToken.type !== TokenType.Identifier) throw new CompilerError(newToken.range, `Expected identifier after '<', found '${newToken.value}'.`, filePath);
-            if (!newToken.value.match(primitiveTypes)) throw new CompilerError(newToken.range, `Expected primitive type identifier after '<', found '${newToken.value}'`, filePath);
-            if (at(2).type !== TokenType.CloseDiamond) throw new CompilerError(at(2).range, `Expected '>' after primitive type identifier, found '${at(2).value}'`, filePath);
-            const t = tokens.shift();
-            tokens.shift();
-
-            return node({ type: NodeType.PrimitiveType, value: newToken.value, range: combineTwo(t, tokens.shift()) }, put);
-        } else if (tt === TokenType.WhitespaceIdentifier) {
-            const { range } = tokens.shift();
-            return node({ type: NodeType.WhitespaceIdentifier, value: '+s', range }, put);
-        } else if (tt === TokenType.OpenBrace) {
-            const { range } = tokens.shift();
-
-            const expr: BraceExpression = { type: NodeType.Brace, body: [], value: '{', range: defaultRange };
-
-            while (at().type !== TokenType.CloseBrace) {
-                const stmt = parseStatement(false);
-                expr.body.push(stmt);
-            }
-            expr.range = combineTwo(range, tokens.shift());
-            return node(expr, put);
-
-        } else if (tt === TokenType.OpenParen) {
-            const { range } = tokens.shift();
-
-            const expr: ParenExpression = { type: NodeType.Paren, body: [], value: '(', range: defaultRange };
-
-            while (at().type !== TokenType.CloseParen) {
-                const stmt = parseStatement(false);
-                expr.body.push(stmt);
-            }
-            expr.range = combineTwo(range, tokens.shift());
-            return node(expr, put);
-
-
-        } else if (tt === TokenType.OpenSquare) {
-            const { range } = tokens.shift();
-
-            const expr: SquareExpression = { type: NodeType.Square, body: [], value: '[', range: defaultRange };
-
-            while (at().type !== TokenType.CloseSquare) {
-                const stmt = parseStatement(false);
-                expr.body.push(stmt);
-            }
-            expr.range = combineTwo(range, tokens.shift());
-            return node(expr, put);
-
-
-        } else if (tt === TokenType.Identifier && at(1).type === TokenType.VarSeperator) {
-
-            if (at(2).type !== TokenType.IntNumber) throw new CompilerError(at(2).range, `Expected index after ${at().value} variable, found ${at(2).value}.`, filePath);
-
-            const id = tokens.shift(); // id
-            tokens.shift(); // sep
-            const index = tokens.shift(); // index
-            const expr: VariableExpression = { index: parseInt(index.value), type: NodeType.Variable, value: id.value, range: combineTwo(id, index) };
-
-            return node(expr, put);
-        } else if (keywords.includes(tt)) {
-            if (!statements) throw new CompilerError(at().range, 'Statement not allowed here.', filePath);
-            return parseStatement();
-        } else if (tt === TokenType.Identifier && expectIdentifier) {
-            const { value, range } = tokens.shift();
-            return node({ type: NodeType.String, value, range }, put);
-        }
+        else if (tt === TokenType.OpenDiamond) return ExpressionParser.parsePrimitiveType(this, primitiveTypes, put);
+        else if (tt === TokenType.WhitespaceIdentifier) return ExpressionParser.parseWhitespaceIdentifier(this, put);
+        else if (tt === TokenType.OpenBrace) return ExpressionParser.parseBraceExpression(this, put, defaultRange);
+        else if (tt === TokenType.OpenSquare) return ExpressionParser.parseSquareExpression(this, put, defaultRange);
+        else if (tt === TokenType.OpenParen) return ExpressionParser.parseParenExpression(this, put, defaultRange);
+        else if (tt === TokenType.Identifier && at(1).type === TokenType.VarSeperator) return ExpressionParser.parsePrimitiveVariable(this, put);
         else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`, filePath);
 
 
@@ -591,6 +529,97 @@ namespace ExpressionParser {
         }
 
         return node({ type: NodeType.String, value: s, range: combineTwo(range, tokens.shift()) }, put);
+    }
+
+    /**
+     * Parses a primitive type expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+     * @returns Parsed node.
+    */
+    export function parsePrimitiveType({ at, tokens, filePath, combineTwo, node }: parser, primitiveTypes: RegExp, put: boolean): Node {
+        const newToken = at(1);
+        if (newToken.type !== TokenType.Identifier) throw new CompilerError(newToken.range, `Expected identifier after '<', found '${newToken.value}'.`, filePath);
+        if (!primitiveTypes.test(newToken.value)) throw new CompilerError(newToken.range, `Expected primitive type identifier after '<', found '${newToken.value}'`, filePath);
+        if (at(2).type !== TokenType.CloseDiamond) throw new CompilerError(at(2).range, `Expected '>' after primitive type identifier, found '${at(2).value}'`, filePath);
+        const t = tokens.shift();
+        tokens.shift();
+        return node({ type: NodeType.PrimitiveType, value: newToken.value, range: combineTwo(t, tokens.shift()) }, put);
+    }
+
+    /**
+     * Parses a whitespace identifier expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+     * @returns Parsed node.
+    */
+    export function parseWhitespaceIdentifier({ node, tokens }: parser, put: boolean): Node {
+        const { range } = tokens.shift();
+        return node({ type: NodeType.WhitespaceIdentifier, value: '+s', range }, put);
+    }
+
+    /**
+     * Parses a brace expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+     * @returns Parsed node.
+    */
+    export function parseBraceExpression({ tokens, parseStatement, combineTwo, node, at }: parser, put: boolean, dr: Range) {
+        const { range } = tokens.shift();
+
+        const expr: BraceExpression = { type: NodeType.Brace, body: [], value: '{', range: dr };
+
+        while (at().type !== TokenType.CloseBrace) {
+            const stmt = parseStatement(false);
+            expr.body.push(stmt);
+        }
+        expr.range = combineTwo(range, tokens.shift());
+        return node(expr, put);
+    }
+
+    /**
+         * Parses a square expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+         * @returns Parsed node.
+        */
+    export function parseSquareExpression({ tokens, parseStatement, combineTwo, node, at }: parser, put: boolean, dr: Range) {
+        const { range } = tokens.shift();
+
+        const expr: SquareExpression = { type: NodeType.Square, body: [], value: '[', range: dr };
+
+        while (at().type !== TokenType.CloseSquare) {
+            const stmt = parseStatement(false);
+            expr.body.push(stmt);
+        }
+        expr.range = combineTwo(range, tokens.shift());
+        return node(expr, put);
+    }
+
+
+    /**
+         * Parses a paren expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+         * @returns Parsed node.
+        */
+    export function parseParenExpression({ tokens, parseStatement, combineTwo, node, at }: parser, put: boolean, dr: Range) {
+        const { range } = tokens.shift();
+
+        const expr: ParenExpression = { type: NodeType.Paren, body: [], value: '(', range: dr };
+
+        while (at().type !== TokenType.CloseParen) {
+            const stmt = parseStatement(false);
+            expr.body.push(stmt);
+        }
+        expr.range = combineTwo(range, tokens.shift());
+        return node(expr, put);
+    }
+
+    /**
+     * Parses a primitive variable expression. Parameters are related to the environment of {@link syxparser.parseExpression} or {@link sysparser.parseExpression}. 
+     * @returns Parsed node.
+    */
+    export function parsePrimitiveVariable({ at, tokens, node, filePath, combineTwo }: parser, put: boolean) {
+
+        if (at(2).type !== TokenType.IntNumber) throw new CompilerError(at(2).range, `Expected index after ${at().value} variable, found ${at(2).value}.`, filePath);
+
+        const id = tokens.shift(); // id
+        tokens.shift(); // sep
+        const index = tokens.shift(); // index
+        const expr: VariableExpression = { index: parseInt(index.value), type: NodeType.Variable, value: id.value, range: combineTwo(id, index) };
+
+        return node(expr, put);
     }
 
 }
