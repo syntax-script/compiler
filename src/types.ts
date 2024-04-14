@@ -1,4 +1,4 @@
-import { Range } from 'lsp-types';
+import { CodeAction, CodeActionKind, Range } from 'lsp-types';
 
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,
@@ -520,24 +520,26 @@ export interface SyxConfigCompile {
 /**
  * An error that occured while tokenizing, parsing or compiling a file.
  * @author efekos
- * @version 1.0.2
+ * @version 1.0.3
  * @since 0.0.1-alpha
  */
 export class CompilerError extends Error {
     range: Range;
     file: string;
+    actions: CodeAction[] = [{title:'Test Action',kind:CodeActionKind.QuickFix,command:{command:'vscode.editor.open',title:'Open'}}];
 
     /**
      * An error that occured while tokenizing a file.
      * @param {Range} range Range where the error is.
      * @param {string} message Error message. 
      */
-    constructor(range: Range, message: string, file?: string) {
+    constructor(range: Range, message: string, file?: string,actions?:CodeAction[]) {
         super();
         this.range = range;
         this.message = message;
         this.file = file;
         this.name = 'CompilerError';
+        if(actions!==undefined) this.actions = actions;
     }
 }
 

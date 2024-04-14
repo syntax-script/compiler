@@ -30,23 +30,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
                 range: subRange(error.range),
                 severity: DiagnosticSeverity.Error,
                 source: 'syntax-script',
-                data: [
-                    {
-                        title: 'Test Action',
-                        kind: CodeActionKind.QuickFix,
-                        edit: {
-                            changes: {
-                                [filePath]: [
-                                    {
-                                        range:subRange(error.range),
-                                        newText:'test'
-                                    }
-                                ]
-                            }
-                        }
-
-                    }
-                ] as CodeAction[]
+                data: error.actions
             });
         }
     } finally {
