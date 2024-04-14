@@ -44,7 +44,15 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
  * Modifies the given range to be zero-based.
  * @param {Range} r Any range. 
  * @returns Same range with every value decreased by 1.
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.1-alpha
  */
-function subRange(r:Range):Range {
-    return {start:{character:r.start.character-1,line:r.start.line-1},end:{character:r.end.character-1,line:r.end.line-1}};
+export function subRange(r:Range):Range {
+    const a = r.start.character;
+    const b = r.start.line;
+    const c = r.end.character;
+    const d = r.end.line;
+
+    return {start:{character:a===0?0:a-1,line:b===0?0:b-1},end:{character:c===0?0:c-1,line:d===0?0:d-1}};
 }

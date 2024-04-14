@@ -2,6 +2,7 @@ import { BraceExpression, CompileStatement, CompilerError, ExportStatement, Expr
 import { CodeAction, CodeActionKind, Range } from 'lsp-types';
 import { dictionary } from './dictionary/dictionary.js';
 import levenshtein from 'js-levenshtein';
+import { subRange } from './diagnostic.js';
 
 const caf = {
     mk: (keyword: string, program: ProgramStatement, range: Range, filePath: string): CodeAction[] => {
@@ -17,7 +18,7 @@ const caf = {
                 edit: {
                     changes: {
                         [filePath]: [{
-                            range,
+                            range:subRange(range),
                             newText: word
                         }]
                     }
@@ -485,6 +486,13 @@ export namespace syxparser {
         else if (tt === TokenType.OpenSquare) return parseSquareExpression(put, defaultRange);
         else if (tt === TokenType.OpenParen) return parseParenExpression(put, defaultRange);
         else if (tt === TokenType.Identifier && at(1).type === TokenType.VarSeperator) return parsePrimitiveVariable(put);
+        else if (keywords.includes(tt)) {
+            if (!statements) throw new CompilerError(at().range, 'Statement not allowed here.', filePath);
+            return parseStatement();
+        } else if (tt === TokenType.Identifier && expectIdentifier) {
+            const { value, range } = tokens.shift();
+            return node({ type: NodeType.String, value, range }, put);
+        }
         else throw new CompilerError(at().range, `Unexpected expression: '${at().value}'`, filePath);
 
 
