@@ -28,7 +28,8 @@ const report = createSyntaxScriptDiagnosticReport('/path/to/file.syx');
 console.log(`${report.items.length} Problems found in the file.`);
 ```
 
-Handling compiler errors 
+Handling compiler errors.
+
 ```typescript
 import { SyntaxScriptCompiler,isCompilerError } from '@syntaxs/compiler';
 
