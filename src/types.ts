@@ -520,13 +520,13 @@ export interface SyxConfigCompile {
 /**
  * An error that occured while tokenizing, parsing or compiling a file.
  * @author efekos
- * @version 1.0.3
+ * @version 1.0.4
  * @since 0.0.1-alpha
  */
 export class CompilerError extends Error {
     range: Range;
     file: string;
-    actions: CodeAction[] = [{title:'Test Action',kind:CodeActionKind.QuickFix,command:{command:'vscode.editor.open',title:'Open'}}];
+    actions: CodeAction[] = [];
 
     /**
      * An error that occured while tokenizing a file.
