@@ -286,7 +286,7 @@ export interface ProgramStatement extends Statement {
  */
 export interface Statement {
     type: NodeType;
-    range:Range;
+    range: Range;
 }
 
 /**
@@ -533,13 +533,13 @@ export class CompilerError extends Error {
      * @param {Range} range Range where the error is.
      * @param {string} message Error message. 
      */
-    constructor(range: Range, message: string, file?: string,actions?:CodeAction[]) {
+    constructor(range: Range, message: string, file?: string, actions?: CodeAction[]) {
         super();
         this.range = range;
         this.message = message;
         this.file = file;
         this.name = 'CompilerError';
-        if(actions!==undefined) this.actions = actions;
+        if (actions !== undefined) this.actions = actions;
     }
 }
 
@@ -551,6 +551,6 @@ export class CompilerError extends Error {
  * @since 0.0.1-alpha
  * @returns Whether it is a {@link CompilerError} or not.
  */
-export function isCompilerError(error:Error):error is CompilerError{
+export function isCompilerError(error: Error): error is CompilerError {
     return error.name === 'CompilerError';
 }

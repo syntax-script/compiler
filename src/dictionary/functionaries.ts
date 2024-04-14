@@ -6,7 +6,7 @@
  */
 export interface Functionary {
     name: string;
-    value:FunctionaryValueType;
+    value: FunctionaryValueType;
 }
 
 /**

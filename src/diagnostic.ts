@@ -1,4 +1,4 @@
-import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport,Range } from 'lsp-types';
+import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
 import { isCompilerError } from './types.js';
@@ -21,7 +21,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
 
         const content = fileContent ?? readFileSync(filePath).toString();
         const tokens = (isSyx ? tokenizeSyx : tokenizeSys)(content);
-        (isSyx ? syxparser : sysparser).parseTokens(tokens,filePath);
+        (isSyx ? syxparser : sysparser).parseTokens(tokens, filePath);
 
     } catch (error) {
         if (isCompilerError(error)) {
@@ -48,11 +48,11 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
  * @version 1.0.0
  * @since 0.0.1-alpha
  */
-export function subRange(r:Range):Range {
+export function subRange(r: Range): Range {
     const a = r.start.character;
     const b = r.start.line;
     const c = r.end.character;
     const d = r.end.line;
 
-    return {start:{character:a===0?0:a-1,line:b===0?0:b-1},end:{character:c===0?0:c-1,line:d===0?0:d-1}};
+    return { start: { character: a === 0 ? 0 : a - 1, line: b === 0 ? 0 : b - 1 }, end: { character: c === 0 ? 0 : c - 1, line: d === 0 ? 0 : d - 1 } };
 }

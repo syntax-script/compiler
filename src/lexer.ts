@@ -81,7 +81,7 @@ export function tokenizeSyx(source: string): Token[] {
 
     while (src.length > 0) {
         if (src[0] === '/' && src[1] === '/') {
-            while (src.length > 0 && src[0] as string !== '\n' ) {
+            while (src.length > 0 && src[0] as string !== '\n') {
                 src.shift();
             }
         }
@@ -120,7 +120,7 @@ export function tokenizeSyx(source: string): Token[] {
             }
 
             const reserved = keywords[ident];
-            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range:tpr(pos(curLine,startPos),pos(curLine,curPos))});
+            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range: tpr(pos(curLine, startPos), pos(curLine, curPos)) });
         } else if (isSkippable(src[0])) {
             src.shift();
             curPos++;
@@ -129,7 +129,7 @@ export function tokenizeSyx(source: string): Token[] {
         else tokens.push({ type: TokenType.Raw, value: src.shift(), range: opr(curLine, curPos++) });
     }
 
-    tokens.push({ type: TokenType.EndOfFile, value: 'EOF', range:opr(curLine,0)});
+    tokens.push({ type: TokenType.EndOfFile, value: 'EOF', range: opr(curLine, 0) });
     return tokens;
 }
 
@@ -161,7 +161,7 @@ export function tokenizeSys(source: string): Token[] {
             }
 
             const reserved = keywords[ident];
-            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range:tpr(pos(curLine,startPos),pos(curLine,curPos)) });
+            tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range: tpr(pos(curLine, startPos), pos(curLine, curPos)) });
         } else if (isSkippable(src[0])) {
             src.shift();
             curPos++;

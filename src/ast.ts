@@ -18,7 +18,7 @@ const caf = {
                 edit: {
                     changes: {
                         [filePath]: [{
-                            range:subRange(range),
+                            range: subRange(range),
                             newText: word
                         }]
                     }
@@ -508,7 +508,7 @@ export namespace syxparser {
 
 export namespace sysparser {
 
-    
+
     //#                                                             
     //#                     STATEMENT PARSERS                       
     //#                                                             
@@ -524,7 +524,7 @@ export namespace sysparser {
         return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range) }, put);
     }
 
-        //#                                                              
+    //#                                                              
     //#                     EXPRESSION PARSERS                       
     //#                                                              
     /**

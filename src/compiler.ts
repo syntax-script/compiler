@@ -69,7 +69,7 @@ export class SyntaxScriptCompiler {
      * @since 0.0.1-alpha
      */
     public compileSyx(file: string) {
-        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()),file);
+        const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()), file);
         const out: AnyExportable[] = [];
 
         ast.body.forEach(statement => {
@@ -197,7 +197,7 @@ export class SyntaxScriptCompiler {
      * @version 1.0.3
      */
     public compileSys(file: string) {
-        const ast = sysparser.parseTokens(tokenizeSys(readFileSync(file).toString()),file);
+        const ast = sysparser.parseTokens(tokenizeSys(readFileSync(file).toString()), file);
 
         //# Handle import statements 
         var imported: AnyExportable[] = [];
@@ -232,11 +232,11 @@ export class SyntaxScriptCompiler {
         imported.forEach(i => {
 
             if (i.type === ExportType.Operator) {
-                if (i.outputGenerators[this.mainFileFormat] === undefined) throw new CompilerError({end:{character:0,line:0},start:{character:0,line:0}}, `Can't compile operator to target language (${this.mainFileFormat}).`);
+                if (i.outputGenerators[this.mainFileFormat] === undefined) throw new CompilerError({ end: { character: 0, line: 0 }, start: { character: 0, line: 0 } }, `Can't compile operator to target language (${this.mainFileFormat}).`);
                 fileContent = fileContent.replace(new RegExp(i.regexMatcher.source, 'g'), i.outputGenerators[this.mainFileFormat]);
                 if (i.imports[this.mainFileFormat] !== undefined && !imports.includes(i.imports[this.mainFileFormat])) imports.push(i.imports[this.mainFileFormat]);
             } else if (i.type === ExportType.Function) {
-                if (i.formatNames[this.mainFileFormat] === undefined) throw new CompilerError({end:{character:0,line:0},start:{character:0,line:0}}, `Can't compile function to target language (${this.mainFileFormat}).`);
+                if (i.formatNames[this.mainFileFormat] === undefined) throw new CompilerError({ end: { character: 0, line: 0 }, start: { character: 0, line: 0 } }, `Can't compile function to target language (${this.mainFileFormat}).`);
                 fileContent = fileContent.replace(new RegExp(i.name + '\\(' + i.args.map(m => m.source).join(',') + '\\)', 'g'), (m) => m.replace(i.name, i.formatNames[this.mainFileFormat]));
             }
 

@@ -1,7 +1,7 @@
 /**
  * Value type of a rule.
  */
-export type RuleType = 'keyword'|'boolean';
+export type RuleType = 'keyword' | 'boolean';
 
 /**
  * Base interface for rules. Represents a rule that can be modified by any file using `rule` modifier.
