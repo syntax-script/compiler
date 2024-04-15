@@ -1,4 +1,4 @@
-import { CompileStatement, CompilerError, ExportStatement, FunctionStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, OperatorStatement, PrimitiveTypeExpression, StringExpression, VariableExpression } from './types.js';
+import { CompileStatement, CompilerError, FunctionStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, OperatorStatement, PrimitiveTypeExpression, StringExpression, TokenType, VariableExpression, statementIsA } from './types.js';
 import { dirname, join } from 'path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
@@ -65,23 +65,23 @@ export class SyntaxScriptCompiler {
      * Compiles one .syx file from the path given.
      * @param {string} file Path to a file to compile.
      * @author efekos
-     * @version 1.0.4
-     * @since 0.0.1-alpha
+     * @version 1.0.5
+     * @since 0.0.2-alpha
      */
     public compileSyx(file: string) {
         const ast = syxparser.parseTokens(tokenizeSyx(readFileSync(file).toString()), file);
         const out: AnyExportable[] = [];
 
         ast.body.forEach(statement => {
-            if (statement.type !== NodeType.Export) return;
-            const exported = (statement as ExportStatement).body;
+            if (!statement.modifiers.some(token=>token.type===TokenType.ExportKeyword)) return;
+            
 
-            if (exported.type === NodeType.Operator) {
-                const operatorStmt = exported as OperatorStatement;
+            if (statementIsA(statement,NodeType.Operator)) {
+                
 
                 //# Generate regexMatcher
                 let regexMatcher: RegExp = new RegExp('');
-                operatorStmt.regex.forEach(regexStatement => {
+                statement.regex.forEach(regexStatement => {
 
                     if (regexStatement.type === NodeType.PrimitiveType) {
                         regexMatcher = new RegExp(regexMatcher.source + regexes[(regexStatement as PrimitiveTypeExpression).value].source);
@@ -98,7 +98,7 @@ export class SyntaxScriptCompiler {
                 const operatorStmtExport: Operator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator };
 
                 //# Handle statements
-                operatorStmt.body.forEach(stmt => {
+                statement.body.forEach(stmt => {
                     if (stmt.type === NodeType.Compile) {
                         const compileStmt = stmt as CompileStatement;
 
@@ -136,24 +136,21 @@ export class SyntaxScriptCompiler {
                 });
 
                 out.push(operatorStmtExport);
-            } else if (exported.type === NodeType.Function) {
-                const stmt = exported as FunctionStatement;
-                const statementExport: Function = { type: ExportType.Function, args: stmt.arguments.map(s => regexes[s]), name: stmt.name, formatNames: {}, imports: {} };
+            } else if (statementIsA(statement,NodeType.Function)) {
+                const statementExport: Function = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s]), name: statement.name, formatNames: {}, imports: {} };
 
-                stmt.body.forEach(statement => {
+                statement.body.forEach(stmt => {
 
-                    if (statement.type === NodeType.Compile) {
-                        const compileStatement = statement as CompileStatement;
-                        if (compileStatement.body[0].type !== NodeType.String) throw new CompilerError(compileStatement.range, 'Expected a string after compile statement parens');
-                        compileStatement.formats.forEach(each => {
-                            if (statementExport.formatNames[each] !== undefined) throw new CompilerError(compileStatement.range, `Encountered multiple compile statements for target language '${each}'`);
-                            statementExport.formatNames[each] = compileStatement.body[0].value;
+                    if (statementIsA(stmt,NodeType.Compile)) {
+                        if (stmt.body[0].type !== NodeType.String) throw new CompilerError(stmt.range, 'Expected a string after compile statement parens');
+                        stmt.formats.forEach(each => {
+                            if (statementExport.formatNames[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple compile statements for target language '${each}'`);
+                            statementExport.formatNames[each] = stmt.body[0].value;
                         });
-                    } else if (statement.type === NodeType.Imports) {
-                        const importsStatement = statement as ImportsStatement;
-                        importsStatement.formats.forEach(each => {
-                            if (statementExport.imports[each] !== undefined) throw new CompilerError(importsStatement.range, `Encountered multiple import statements for target language '${each}'`);
-                            statementExport.imports[each] = importsStatement.module;
+                    } else if (statementIsA(stmt,NodeType.Imports)) {
+                        stmt.formats.forEach(each => {
+                            if (statementExport.imports[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple import statements for target language '${each}'`);
+                            statementExport.imports[each] = stmt.module;
                         });
                     }
 
@@ -161,11 +158,9 @@ export class SyntaxScriptCompiler {
 
 
                 out.push(statementExport);
-            } else if (exported.type === NodeType.Keyword) {
-                const stmt = exported as KeywordStatement;
-
-                out.push({ type: ExportType.Keyword, word: stmt.word });
-            } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`);
+            } else if (statementIsA(statement,NodeType.Keyword)) {
+                out.push({ type: ExportType.Keyword, word: statement.word });
+            } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`,file);
 
         });
 
