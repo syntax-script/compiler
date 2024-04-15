@@ -205,11 +205,6 @@ export enum NodeType {
     Imports, // imports() method
 
     /**
-     * {@link ExportStatement}.
-     */
-    Export,
-
-    /**
      * {@link FunctionStatement}.
      */
     Function,
@@ -281,12 +276,13 @@ export interface ProgramStatement extends Statement {
 /**
  * Base statement interface.
  * @author efekos
- * @version 1.0.3
+ * @version 1.0.4
  * @since 0.0.1-alpha
  */
 export interface Statement {
     type: NodeType;
     range: Range;
+    modifiers: Token[];
 }
 
 /**
@@ -455,17 +451,6 @@ export interface ImportStatement extends Statement {
 }
 
 /**
- * Export statements are used to export a certain statement, such as an operator or a keyword. Uses type {@link NodeType.Export}
- * @author efekos
- * @version 1.0.0
- * @since 0.0.1-alpha
- */
-export interface ExportStatement extends Statement {
-    type: NodeType.Export,
-    body: Statement;
-}
-
-/**
  * Function statements are used to define possible function calls. How the function is called depends on the place this statement is
  * used. Uses type {@link NodeType.Function}.
  * @author efekos
@@ -479,6 +464,18 @@ export interface FunctionStatement extends Statement {
     body: Statement[];
 }
 
+/**
+ * Global statements are used to define values that are global. They can be global classes, interfaces, or just global methods depending on
+ * the language. But the only thing that matters here is that they are global, and can be used from anywhere.
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.2-alpha
+ */
+export interface GlobalStatement extends Statement {
+    body: Statement[];
+    name: string;
+}
+
 
 /**
  * Represents any interface that is a node.
@@ -487,7 +484,7 @@ export interface FunctionStatement extends Statement {
  * @since 0.0.1-alpha
  */
 export type Node =
-    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ExportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement |
+    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement |
     StringExpression | PrimitiveTypeExpression | VariableExpression | WhitespaceIdentifierExpression | BraceExpression | SquareExpression | ParenExpression;
 
 /**
@@ -514,7 +511,6 @@ export interface SyxConfigCompile {
     out: string;
     format: string;
 }
-
 
 
 /**
@@ -553,4 +549,36 @@ export class CompilerError extends Error {
  */
 export function isCompilerError(error: Error): error is CompilerError {
     return error.name === 'CompilerError';
+}
+
+interface NodeTypes {
+    [NodeType.Brace]: BraceExpression;
+    [NodeType.Compile]: CompileStatement;
+    [NodeType.Function]: FunctionStatement;
+    [NodeType.Import]: ImportStatement;
+    [NodeType.Imports]: ImportsStatement;
+    [NodeType.Keyword]: KeywordStatement;
+    [NodeType.Operator]: OperatorStatement;
+    [NodeType.Paren]: ParenExpression;
+    [NodeType.PrimitiveType]: PrimitiveTypeExpression;
+    [NodeType.Program]: ProgramStatement;
+    [NodeType.Rule]: RuleStatement;
+    [NodeType.Square]: SquareExpression;
+    [NodeType.String]: StringExpression;
+    [NodeType.Variable]: VariableExpression;
+    [NodeType.WhitespaceIdentifier]: WhitespaceIdentifierExpression;
+    [NodeType.Global]: GlobalStatement;
+}
+
+/**
+ * Determines whether the given node matches the expected node type.
+ * @param {Node} node Any node.
+ * @param {NodeType} nodeType Expected node type.
+ * @returns {boolean} True if the given node is of the expected node type, otherwise false.
+ * @author efekos
+ * @since 0.0.2-alpha
+ * @version 1.0.0
+ */
+export function statementIsA<T extends keyof NodeTypes>(node:Statement,nodeType:T): node is NodeTypes[T] {
+    return node.type === nodeType;
 }
