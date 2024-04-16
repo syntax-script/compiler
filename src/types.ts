@@ -484,7 +484,7 @@ export interface GlobalStatement extends Statement {
  * @since 0.0.1-alpha
  */
 export type Node =
-    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement |
+    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement | GlobalStatement | 
     StringExpression | PrimitiveTypeExpression | VariableExpression | WhitespaceIdentifierExpression | BraceExpression | SquareExpression | ParenExpression;
 
 /**
