@@ -41,10 +41,10 @@ export namespace syxparser {
       */
     export function parseImportStatement(put: boolean, token: Token): Node {
         const ex = parseExpression(false, false);
-        if (ex.type !== NodeType.String) throw new CompilerError(ex.range, 'Expected file path after import statement.', filePath);
+        if (!statementIsA(ex,NodeType.String)) throw new CompilerError(ex.range, 'Expected file path after import statement.', filePath);
         if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`, filePath);
         tokens.shift();
-        return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range), modifiers: [] }, put);
+        return node({ type: NodeType.Import, path: ex.value, range: combineTwo(token, ex.range), modifiers: [] }, put);
     }
 
     /**
@@ -53,27 +53,22 @@ export namespace syxparser {
      */
     export function parseRuleStatement(token: Token, put: boolean): Node {
         const ruleExpr = parseExpression(false, false) as Expression;
-        if (ruleExpr.type !== NodeType.String) { throw new CompilerError(ruleExpr.range, `Expected rule name as string after 'rule', found ${ruleExpr.value}.`, filePath); }
+        if (!statementIsA(ruleExpr,NodeType.String)) throw new CompilerError(ruleExpr.range, `Expected rule name as string after 'rule', found ${ruleExpr.value}.`, filePath);
         if (at().value !== ':') throw new CompilerError(at().range, `Expected \':\' after rule name, found ${at().value}.`, filePath);
         tokens.shift();
-        if (!dictionary.Rules.find(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`, filePath);
+        if (!dictionary.Rules.some(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`, filePath);
         const rule = dictionary.Rules.find(r => r.name === ruleExpr.value);
 
         if (rule.type === 'boolean') {
             const boolEx = parseExpression(false, false, true) as Expression;
-            if (!(boolEx.type === NodeType.String && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) { throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`, filePath); }
-
+            if (!(statementIsA(boolEx,NodeType.String) && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`, filePath);
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found '${at().value}'.`, filePath);
             return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, range: combineTwo(token, tokens.shift()), modifiers:[] }, put);
         } else if (rule.type === 'keyword') {
-            const keyEx = parseExpression(false, false, true) as Expression;
-            if (!(
-                keyEx.type === NodeType.String &&
-                program.body.some(s =>
-                    statementIsA(s,NodeType.Keyword) && s.word === keyEx.value
-                )
-            )) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`, filePath, caf.mk(keyEx.value, program, keyEx.range, filePath));
+            const keyEx = parseExpression(false, false, true);
+            if(!statementIsA(keyEx,NodeType.String)) throw new CompilerError(keyEx.range,'Excepted keyword.',filePath);
+            if (!program.body.some(s =>statementIsA(s,NodeType.Keyword) && s.word === keyEx.value)) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`, filePath, caf.mk(keyEx.value, program, keyEx.range, filePath));
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found ${at().value}.`, filePath);
             return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, range: combineTwo(token, tokens.shift()), modifiers: [] }, put);
@@ -85,10 +80,12 @@ export namespace syxparser {
      * @returns Parsed node.
      */
     export function parseKeywordStatement(put: boolean, token: Token): Node {
-        const ex = parseExpression(false, false, true) as Expression;
-        if (ex.type !== NodeType.String) throw new CompilerError(ex.range, `Expected identifier after keyword statement, found '${ex.value}'.`, filePath);
+        const ex = parseExpression(false, false, true);
+        if (!statementIsA(ex,NodeType.String)) throw new CompilerError(ex.range, 'Expected identifier after keyword statement.', filePath);
+
         if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after statement, found '${at().value}'.`, filePath);
         tokens.shift(); // skip semicolon
+
         return node({ type: NodeType.Keyword, word: ex.value, range: combineTwo(token, ex.range), modifiers: [] }, put);
     }
 
@@ -116,12 +113,12 @@ export namespace syxparser {
 
         while (at().type !== TokenType.OpenBrace) {
             const expr = parseExpression(false, false) as Expression;
-            if (expr.type !== NodeType.PrimitiveType) throw new CompilerError(expr.range, `Expected argument types after function name, found ${expr.value}.`, filePath);
-            statement.arguments.push((expr as PrimitiveTypeExpression).value);
+            if (!statementIsA(expr,NodeType.PrimitiveType)) throw new CompilerError(expr.range, `Expected argument types after function name, found ${expr.value}.`, filePath);
+            statement.arguments.push(expr.value);
         }
 
         const braceExpr = parseExpression(false);
-        if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Function statement requires braces.', filePath);
+        if (!statementIsA(braceExpr,NodeType.Brace)) throw new CompilerError(braceExpr.range, 'Function statement requires braces.', filePath);
         braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside a function statement.', filePath); });
 
         statement.body = braceExpr.body;
@@ -156,7 +153,7 @@ export namespace syxparser {
 
         const moduleExpr = parseExpression(false, false) as Expression;
 
-        if (moduleExpr.type !== NodeType.String) throw new CompilerError(moduleExpr.range, `Expected string after parens of imports statement, found '${moduleExpr.value}'.`, filePath);
+        if (!statementIsA(moduleExpr,NodeType.String)) throw new CompilerError(moduleExpr.range, `Expected string after parens of imports statement, found '${moduleExpr.value}'.`, filePath);
 
         statement.module = moduleExpr.value;
         statement.range = combineTwo(token, moduleExpr.range);
@@ -213,7 +210,7 @@ export namespace syxparser {
         }
 
         const braceExpr = parseExpression(false);
-        if (braceExpr.type !== NodeType.Brace) throw new CompilerError(braceExpr.range, 'Expected braces after operator regex.', filePath);
+        if (!statementIsA(braceExpr,NodeType.Brace)) throw new CompilerError(braceExpr.range, 'Expected braces after operator regex.', filePath);
         braceExpr.body.forEach(s => { if (!([NodeType.Compile, NodeType.Imports].includes(s.type))) throw new CompilerError(s.range, 'Statement not allowed inside of operator statement.'); }, filePath);
 
         statement.body = braceExpr.body;
@@ -518,7 +515,7 @@ export namespace sysparser {
       */
     export function parseImportStatement(put: boolean, token: Token): Node {
         const ex = parseExpression(false, false);
-        if (ex.type !== NodeType.String) throw new CompilerError(ex.range, 'Expected file path after import statement.', filePath);
+        if (!statementIsA(ex,NodeType.String)) throw new CompilerError(ex.range, 'Expected file path after import statement.', filePath);
         if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected ';' after import statement, found '${at().value}'.`, filePath);
         tokens.shift();
         return node({ type: NodeType.Import, path: (ex as Expression).value, range: combineTwo(token, ex.range),modifiers:[] }, put);
