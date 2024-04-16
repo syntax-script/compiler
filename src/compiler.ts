@@ -95,7 +95,7 @@ export class SyntaxScriptCompiler {
 
                 });
 
-                const operatorStmtExport: Operator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator };
+                const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator };
 
                 //# Handle statements
                 statement.body.forEach(stmt => {
@@ -137,7 +137,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(operatorStmtExport);
             } else if (statementIsA(statement, NodeType.Function)) {
-                const statementExport: Function = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s]), name: statement.name, formatNames: {}, imports: {} };
+                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s]), name: statement.name, formatNames: {}, imports: {} };
 
                 statement.body.forEach(stmt => {
 
@@ -160,6 +160,8 @@ export class SyntaxScriptCompiler {
                 out.push(statementExport);
             } else if (statementIsA(statement, NodeType.Keyword)) {
                 out.push({ type: ExportType.Keyword, word: statement.word });
+            } else if (statementIsA(statement,NodeType.Global)) {
+                //TODO
             } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);
 
         });
@@ -204,7 +206,7 @@ export class SyntaxScriptCompiler {
                 if (!existsSync(pathToImport)) throw new CompilerError(importStmt.range, `File \'${pathToImport}\' imported from \'${file}\' does not exist.`);
                 this.exportData[pathToImport].forEach(exported => {
                     if (exported.type === ExportType.Operator)
-                        if (imported.filter(r => r.type === ExportType.Operator).some(i => exported.regexMatcher === (i as Operator).regexMatcher)) throw new CompilerError(importStmt.range, `There are more than one operators with the same syntax imported to \'${file}\'.`);
+                        if (imported.filter(r => r.type === ExportType.Operator).some(i => exported.regexMatcher === (i as ExportedOperator).regexMatcher)) throw new CompilerError(importStmt.range, `There are more than one operators with the same syntax imported to \'${file}\'.`);
                     imported.push(exported);
                 });
             }
@@ -245,46 +247,51 @@ export class SyntaxScriptCompiler {
 
 /**
  * Type of something that can be exported.
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  * @author efekos
  */
 export enum ExportType {
 
     /**
-     * {@link Operator}.
+     * {@link ExportedOperator}.
      */
     Operator,
 
     /**
-     * {@link Function}.
+     * {@link ExportedFunction}.
      */
     Function,
 
     /**
-     * {@link Keyword}.
+     * {@link ExportedKeyword}.
      */
-    Keyword
+    Keyword,
+
+    /**
+     * {@link ExportedGlobal}.
+     */
+    Global
 
 }
 
 /**
  * Base exportable interface.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface Export {
+export interface Exported {
     type: ExportType;
 }
 
 /**
  * Represents an exported operator. Uses type {@link ExportType.Operator}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface Operator extends Export {
+export interface ExportedOperator extends Exported {
     type: ExportType.Operator,
     regexMatcher: RegExp;
     outputGenerators: Record<string, OneParameterMethod<string, string>>;
@@ -294,10 +301,10 @@ export interface Operator extends Export {
 /**
  * Represents an exported function. Uses type {@link ExportType.Function}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface Function extends Export {
+export interface ExportedFunction extends Exported {
     type: ExportType.Function;
     name: string;
     args: RegExp[];
@@ -308,10 +315,10 @@ export interface Function extends Export {
 /**
  * Represents an exported keyword. Uses type {@link ExportType.Keyword}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface Keyword extends Export {
+export interface ExportedKeyword extends Exported {
     type: ExportType.Keyword;
     word: string;
 }
@@ -335,7 +342,7 @@ export type ReturnerMethod<R> = () => R;
 /**
  * Any interface that represents something exportable.
  */
-export type AnyExportable = Operator | Function | Keyword;
+export type AnyExportable = ExportedOperator | ExportedFunction | ExportedKeyword;
 
 export const regexes: Record<string, RegExp> = {
     /**

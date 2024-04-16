@@ -1,4 +1,4 @@
-import { AnyExportable, Export, ExportType, Function, Keyword, OneParameterMethod, Operator, ReturnerMethod, SyntaxScriptCompiler, escapeRegex } from './compiler.js';
+import { AnyExportable, Exported, ExportType, ExportedFunction, ExportedKeyword, OneParameterMethod, ExportedOperator, ReturnerMethod, SyntaxScriptCompiler, escapeRegex } from './compiler.js';
 import { BaseRule, BooleanRule, Functionary, FunctionaryValueType, Rule, RuleType, StringRule, dictionary } from './dictionary/index.js';
 import { BraceExpression, CompileStatement, Expression, FunctionStatement, ImportStatement, ImportsStatement, KeywordStatement, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, RuleStatement, SquareExpression, Statement, StringExpression, VariableExpression, WhitespaceIdentifierExpression } from './types.js';
 import { CompilerError, isCompilerError } from './types.js';
@@ -16,7 +16,7 @@ export { BaseRule, BooleanRule, Rule, RuleType, StringRule };
 export { Functionary, FunctionaryValueType };
 
 export { SyntaxScriptCompiler, ExportType };
-export { AnyExportable, Export, Function, Keyword, OneParameterMethod, Operator, ReturnerMethod };
+export { AnyExportable, Exported, ExportedFunction, ExportedKeyword, OneParameterMethod, ExportedOperator, ReturnerMethod };
 
 export { CompilerError };
 export { Token, TokenType, Node, NodeType };
