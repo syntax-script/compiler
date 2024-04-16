@@ -1,4 +1,4 @@
-import { BraceExpression, CompileStatement, CompilerError, Expression, FunctionStatement, GlobalStatement, ImportsStatement, KeywordStatement, Node, NodeType, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, SquareExpression, StringExpression, Token, TokenType, VariableExpression, statementIsA } from './types.js';
+import { BraceExpression, CompileStatement, CompilerError, Expression, FunctionStatement, GlobalStatement, ImportsStatement, KeywordStatement, Node, NodeType, OperatorStatement, ParenExpression, ProgramStatement, SquareExpression, StringExpression, Token, TokenType, VariableExpression, statementIsA } from './types.js';
 import { CodeAction, CodeActionKind, Range } from 'lsp-types';
 import { dictionary } from './dictionary/dictionary.js';
 import levenshtein from 'js-levenshtein';

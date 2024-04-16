@@ -1,10 +1,8 @@
-import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
+import { Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
 import { isCompilerError } from './types.js';
 import { readFileSync } from 'fs';
-
-
 
 /**
  * Creates a diagnostic report from the file path given.
@@ -38,7 +36,6 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
     }
 
 }
-
 
 /**
  * Modifies the given range to be zero-based.

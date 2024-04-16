@@ -1,4 +1,4 @@
-import { CompileStatement, CompilerError, FunctionStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, OperatorStatement, PrimitiveTypeExpression, StringExpression, TokenType, VariableExpression, statementIsA } from './types.js';
+import { CompileStatement, CompilerError, ImportStatement, ImportsStatement, NodeType, PrimitiveTypeExpression, StringExpression, TokenType, VariableExpression, statementIsA } from './types.js';
 import { dirname, join } from 'path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
@@ -73,11 +73,11 @@ export class SyntaxScriptCompiler {
         const out: AnyExportable[] = [];
 
         ast.body.forEach(statement => {
-            if (!statement.modifiers.some(token=>token.type===TokenType.ExportKeyword)) return;
-            
+            if (!statement.modifiers.some(token => token.type === TokenType.ExportKeyword)) return;
 
-            if (statementIsA(statement,NodeType.Operator)) {
-                
+
+            if (statementIsA(statement, NodeType.Operator)) {
+
 
                 //# Generate regexMatcher
                 let regexMatcher: RegExp = new RegExp('');
@@ -136,18 +136,18 @@ export class SyntaxScriptCompiler {
                 });
 
                 out.push(operatorStmtExport);
-            } else if (statementIsA(statement,NodeType.Function)) {
+            } else if (statementIsA(statement, NodeType.Function)) {
                 const statementExport: Function = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s]), name: statement.name, formatNames: {}, imports: {} };
 
                 statement.body.forEach(stmt => {
 
-                    if (statementIsA(stmt,NodeType.Compile)) {
+                    if (statementIsA(stmt, NodeType.Compile)) {
                         if (stmt.body[0].type !== NodeType.String) throw new CompilerError(stmt.range, 'Expected a string after compile statement parens');
                         stmt.formats.forEach(each => {
                             if (statementExport.formatNames[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple compile statements for target language '${each}'`);
                             statementExport.formatNames[each] = stmt.body[0].value;
                         });
-                    } else if (statementIsA(stmt,NodeType.Imports)) {
+                    } else if (statementIsA(stmt, NodeType.Imports)) {
                         stmt.formats.forEach(each => {
                             if (statementExport.imports[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple import statements for target language '${each}'`);
                             statementExport.imports[each] = stmt.module;
@@ -158,9 +158,9 @@ export class SyntaxScriptCompiler {
 
 
                 out.push(statementExport);
-            } else if (statementIsA(statement,NodeType.Keyword)) {
+            } else if (statementIsA(statement, NodeType.Keyword)) {
                 out.push({ type: ExportType.Keyword, word: statement.word });
-            } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`,file);
+            } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);
 
         });
 

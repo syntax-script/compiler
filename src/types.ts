@@ -1,4 +1,4 @@
-import { CodeAction, CodeActionKind, Range } from 'lsp-types';
+import { CodeAction, Range } from 'lsp-types';
 
 /**
  * Every token type a syntax script declaration file can contain. If something can't be recognized as a token,
@@ -484,7 +484,7 @@ export interface GlobalStatement extends Statement {
  * @since 0.0.1-alpha
  */
 export type Node =
-    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement | GlobalStatement | 
+    ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement | GlobalStatement |
     StringExpression | PrimitiveTypeExpression | VariableExpression | WhitespaceIdentifierExpression | BraceExpression | SquareExpression | ParenExpression;
 
 /**
@@ -579,6 +579,6 @@ interface NodeTypes {
  * @since 0.0.2-alpha
  * @version 1.0.0
  */
-export function statementIsA<T extends keyof NodeTypes>(node:Statement,nodeType:T): node is NodeTypes[T] {
+export function statementIsA<T extends keyof NodeTypes>(node: Statement, nodeType: T): node is NodeTypes[T] {
     return node.type === nodeType;
 }

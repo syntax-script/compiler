@@ -15,7 +15,6 @@ export { escapeRegex, createSyntaxScriptDiagnosticReport, tokenizeSys, tokenizeS
 export { BaseRule, BooleanRule, Rule, RuleType, StringRule };
 export { Functionary, FunctionaryValueType };
 
-
 export { SyntaxScriptCompiler, ExportType };
 export { AnyExportable, Export, Function, Keyword, OneParameterMethod, Operator, ReturnerMethod };
 
