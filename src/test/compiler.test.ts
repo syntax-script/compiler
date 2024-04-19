@@ -62,7 +62,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('keyword ruleish;');
             const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
-            const stmt: KeywordStatement = { type: NodeType.Keyword, modifiers: [], range: { end: { line: 1, character: 14 }, start: { line: 1, character: 0 } }, word: 'ruleish' };
+            const stmt: KeywordStatement = { type: NodeType.Keyword, modifiers: [], range: { end: { line: 1, character: 15 }, start: { line: 1, character: 0 } }, word: 'ruleish' };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -73,7 +73,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('rule \'function-value-return-enabled\': true;');
             const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
-            const stmt:RuleStatement = {range:{start:{line:1,character:0},end:{line:1,character:41}},modifiers:[],rule:'function-value-return-enabled',value:'true',type:NodeType.Rule};
+            const stmt:RuleStatement = {range:{start:{line:1,character:0},end:{line:1,character:42}},modifiers:[],rule:'function-value-return-enabled',value:'true',type:NodeType.Rule};
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -84,7 +84,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('compile(ts,js) \'test\';');
             const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:CompileStatement = {range:{start:{line:1,character:0},end:{line:1,character:20}},formats:['ts','js'],type:NodeType.Compile,modifiers:[],body:[{type:NodeType.String,modifiers:[],range:{start:{line:1,character:15},end:{line:1,character:20}},value:'test'}]};
+            const stmt:CompileStatement = {range:{start:{line:1,character:0},end:{line:1,character:21}},formats:['ts','js'],type:NodeType.Compile,modifiers:[],body:[{type:NodeType.String,modifiers:[],range:{start:{line:1,character:15},end:{line:1,character:20}},value:'test'}]};
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -95,7 +95,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('imports(ts,js) \'math\';');
             const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:ImportsStatement = {range:{start:{line:1,character:0},end:{line:1,character:20}},formats:['ts','js'],type:NodeType.Imports,modifiers:[],module:'math'};
+            const stmt:ImportsStatement = {range:{start:{line:1,character:0},end:{line:1,character:21}},formats:['ts','js'],type:NodeType.Imports,modifiers:[],module:'math'};
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -106,7 +106,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('global randomizer {}');
             const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:GlobalStatement = {range:{start:{line:1,character:0},end:{line:1,character:19}},name:'randomizer',type:NodeType.Global,modifiers:[],body:[]};
+            const stmt:GlobalStatement = {range:{start:{line:1,character:0},end:{line:1,character:20}},name:'randomizer',type:NodeType.Global,modifiers:[],body:[]};
             
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -117,7 +117,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('function randomizer <int> {}');
             const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:FunctionStatement = {range:{start:{line:1,character:0},end:{line:1,character:27}},name:'randomizer',type:NodeType.Function,modifiers:[],body:[],arguments:['int']};
+            const stmt:FunctionStatement = {range:{start:{line:1,character:0},end:{line:1,character:28}},name:'randomizer',type:NodeType.Function,modifiers:[],body:[],arguments:['int']};
             
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -128,7 +128,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('import \'./math\';');
             const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:ImportStatement = {range:{start:{line:1,character:0},end:{line:1,character:14}},type:NodeType.Import,modifiers:[],path:'./math'};
+            const stmt:ImportStatement = {range:{start:{line:1,character:0},end:{line:1,character:15}},type:NodeType.Import,modifiers:[],path:'./math'};
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
