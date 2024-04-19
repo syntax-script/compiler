@@ -64,14 +64,16 @@ export namespace syxparser {
             if (!(statementIsA(boolEx, NodeType.String) && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`, filePath);
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found '${at().value}'.`, filePath);
-            return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, range: combineTwo(token, tokens.shift()), modifiers: [] }, put);
+            tokens.shift();
+            return node({ type: NodeType.Rule, rule: ruleExpr.value, value: boolEx.value, range: combineTwo(token, boolEx.range), modifiers: [] }, put);
         } else if (rule.type === 'keyword') {
             const keyEx = parseExpression(false, false, true);
             if (!statementIsA(keyEx, NodeType.String)) throw new CompilerError(keyEx.range, 'Excepted keyword.', filePath);
             if (!program.body.some(s => statementIsA(s, NodeType.Keyword) && s.word === keyEx.value)) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`, filePath, caf.mk(keyEx.value, program, keyEx.range, filePath));
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found ${at().value}.`, filePath);
-            return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, range: combineTwo(token, tokens.shift()), modifiers: [] }, put);
+            tokens.shift();
+            return node({ type: NodeType.Rule, rule: ruleExpr.value, value: keyEx.value, range: combineTwo(token, keyEx.range), modifiers: [] }, put);
         }
     }
 
@@ -190,8 +192,9 @@ export namespace syxparser {
         while (at().type !== TokenType.Semicolon) {
             const expr = parseExpression(false, false);
             statement.body.push(expr as Expression);
+            statement.range = combineTwo(token, expr.range);
         }
-        statement.range = combineTwo(token, tokens.shift()); // Skip semicolon and make it the end of the range.
+        tokens.shift();
 
         return node(statement, put);
     }

@@ -1,23 +1,29 @@
 import { CompileStatement, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, ProgramStatement, RuleStatement, TokenType } from '../types.js';
 import { describe, it } from '@efekos/es-test/bin/testRunner.js';
 import { tokenizeSys, tokenizeSyx } from '../lexer.js';
+import { Range } from 'lsp-types';
 import { expect } from 'chai';
 import { syxparser } from '../ast.js';
 
 describe('Compiler module', () => {
 
+    function rangeExpectations(r: Range) {
+        expect(r).to.have.property('start').to.be.a('object');
+        expect(r).to.have.property('end').to.be.a('object');
+        expect(r.start).to.have.property('line').to.be.a('number').to.be.greaterThanOrEqual(0);
+        expect(r.start).to.have.property('character').to.be.a('number').to.be.greaterThanOrEqual(0);
+        expect(r.end).to.have.property('character').to.be.a('number').to.be.greaterThanOrEqual(0);
+        expect(r.end).to.have.property('line').to.be.a('number').to.be.greaterThanOrEqual(0);
+    }
+
     it('should provide correct ranges', () => {
 
         const tokens = tokenizeSyx('keyword hello;');
-        const r = tokens[0].range;
 
-        expect(r).to.have.property('start').to.be.a('object');
-        expect(r).to.have.property('end').to.be.a('object');
-        expect(r.start).to.have.property('line').to.be.a('number');
-        expect(r.start).to.have.property('character').to.be.a('number');
-        expect(r.end).to.have.property('character').to.be.a('number');
-        expect(r.end).to.have.property('line').to.be.a('number');
-        expect(r).to.deep.equal({ end: { line: 1, character: 7 }, start: { line: 1, character: 0 } });
+        rangeExpectations(tokens[0].range);
+        expect(tokens[0].range).to.deep.equal({ end: { line: 1, character: 8 }, start: { line: 1, character: 1 } });
+        expect(tokens[1].range).to.deep.equal({ end: { line: 1, character: 14 }, start: { line: 1, character: 9 } });
+        expect(tokens[2].range).to.deep.equal({ end: { line: 1, character: 15 }, start: { line: 1, character: 14 } });
 
     });
 
@@ -44,25 +50,20 @@ describe('Compiler module', () => {
 
     describe('should provide correct parsing', () => {
 
-        function astTypeExpectations(ast:ProgramStatement){
+        function astTypeExpectations(ast: ProgramStatement) {
             expect(ast).to.be.a('object');
             expect(ast).to.have.property('type').to.be.a('number').to.be.equal(NodeType.Program);
             expect(ast).to.have.property('modifiers').to.be.a('array').to.have.lengthOf(0);
             expect(ast).to.have.property('body').to.be.a('array').to.have.lengthOf(1);
             expect(ast).to.have.property('range').to.be.a('object');
-            expect(ast.range).to.have.property('start').to.be.a('object');
-            expect(ast.range).to.have.property('end').to.be.a('object');
-            expect(ast.range.start).to.have.property('line').to.be.a('number');
-            expect(ast.range.start).to.have.property('character').to.be.a('number');
-            expect(ast.range.end).to.have.property('line').to.be.a('number');
-            expect(ast.range.end).to.have.property('character').to.be.a('number');
+            rangeExpectations(ast.range);
         }
 
         it('for keyword statements', () => {
 
             const tokens = tokenizeSyx('keyword ruleish;');
             const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
-            const stmt: KeywordStatement = { type: NodeType.Keyword, modifiers: [], range: { end: { line: 1, character: 15 }, start: { line: 1, character: 0 } }, word: 'ruleish' };
+            const stmt: KeywordStatement = { type: NodeType.Keyword, modifiers: [], range: { end: { line: 1, character: 16 }, start: { line: 1, character: 1 } }, word: 'ruleish' };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
@@ -73,62 +74,62 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('rule \'function-value-return-enabled\': true;');
             const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
-            const stmt:RuleStatement = {range:{start:{line:1,character:0},end:{line:1,character:42}},modifiers:[],rule:'function-value-return-enabled',value:'true',type:NodeType.Rule};
+            const stmt: RuleStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 43 } }, modifiers: [], rule: 'function-value-return-enabled', value: 'true', type: NodeType.Rule };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
 
         });
 
-        it('for compile statements',()=>{
+        it('for compile statements', () => {
 
             const tokens = tokenizeSyx('compile(ts,js) \'test\';');
-            const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:CompileStatement = {range:{start:{line:1,character:0},end:{line:1,character:21}},formats:['ts','js'],type:NodeType.Compile,modifiers:[],body:[{type:NodeType.String,modifiers:[],range:{start:{line:1,character:15},end:{line:1,character:20}},value:'test'}]};
+            const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
+            const stmt: CompileStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 22 } }, formats: ['ts', 'js'], type: NodeType.Compile, modifiers: [], body: [{ type: NodeType.String, modifiers: [], range: { start: { line: 1, character: 16 }, end: { line: 1, character: 22 } }, value: 'test' }] };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
 
         });
 
-        it('for imports statements',()=>{
+        it('for imports statements', () => {
 
             const tokens = tokenizeSyx('imports(ts,js) \'math\';');
-            const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:ImportsStatement = {range:{start:{line:1,character:0},end:{line:1,character:21}},formats:['ts','js'],type:NodeType.Imports,modifiers:[],module:'math'};
+            const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
+            const stmt: ImportsStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 22 } }, formats: ['ts', 'js'], type: NodeType.Imports, modifiers: [], module: 'math' };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
 
         });
 
-        it('for global statements',()=>{
+        it('for global statements', () => {
 
             const tokens = tokenizeSyx('global randomizer {}');
-            const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:GlobalStatement = {range:{start:{line:1,character:0},end:{line:1,character:20}},name:'randomizer',type:NodeType.Global,modifiers:[],body:[]};
-            
+            const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
+            const stmt: GlobalStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 21 } }, name: 'randomizer', type: NodeType.Global, modifiers: [], body: [] };
+
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
 
         });
 
-        it('for function statements',()=>{
+        it('for function statements', () => {
 
             const tokens = tokenizeSyx('function randomizer <int> {}');
-            const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:FunctionStatement = {range:{start:{line:1,character:0},end:{line:1,character:28}},name:'randomizer',type:NodeType.Function,modifiers:[],body:[],arguments:['int']};
-            
+            const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
+            const stmt: FunctionStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 29 } }, name: 'randomizer', type: NodeType.Function, modifiers: [], body: [], arguments: ['int'] };
+
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
 
         });
 
-        it('for import statements',()=>{
+        it('for import statements', () => {
 
             const tokens = tokenizeSyx('import \'./math\';');
-            const ast = syxparser.parseTokens(tokens,'TEST_FILE');
-            const stmt:ImportStatement = {range:{start:{line:1,character:0},end:{line:1,character:15}},type:NodeType.Import,modifiers:[],path:'./math'};
+            const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
+            const stmt: ImportStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 16 } }, type: NodeType.Import, modifiers: [], path: './math' };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);

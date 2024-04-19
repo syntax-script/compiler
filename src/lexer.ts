@@ -53,7 +53,7 @@ function isInt(src: string) {
 }
 
 function opr(line: number, character: number): Range {
-    return { end: { line, character }, start: { line, character } };
+    return { end: { line, character:character+1 }, start: { line, character:character } };
 }
 
 function pos(line: number, character: number): Position {
@@ -76,7 +76,7 @@ function tpr(start: Position, end: Position): Range {
 export function tokenizeSyx(source: string): Token[] {
     const tokens: Token[] = [];
     const src = source.split('');
-    let curPos = 0;
+    let curPos = 1;
     let curLine = 1;
 
     while (src.length > 0) {
