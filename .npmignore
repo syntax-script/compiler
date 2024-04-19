@@ -1,6 +1,7 @@
 # Folders
 /src
 /package
+/dist/test
 
 # Dev-only or unrelated files
 .gitignore

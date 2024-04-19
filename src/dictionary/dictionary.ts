@@ -1,4 +1,4 @@
-import { Functionary, Rule, RuleType } from './index';
+import { Functionary, Rule, RuleType } from './index.js';
 
 const rules: Rule[] = [
     {
