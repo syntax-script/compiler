@@ -4,17 +4,32 @@ const rules: Rule[] = [
     {
         name: 'imports-keyword',
         type: 'keyword',
-        default: 'import'
+        default: 'import',
+        conflicts:[]
     },
     {
         name: 'function-value-return-enabled',
         type: 'boolean',
-        default: false
+        default: false,
+        conflicts:[]
     },
     {
         name: 'function-value-return-keyword',
         type: 'keyword',
-        default: 'return'
+        default: 'return',
+        conflicts:[]
+    },
+    {
+        name: 'enforce-single-string-quotes',
+        type: 'boolean',
+        default: false,
+        conflicts:['enforge-double-string-quotes']
+    },
+    {
+        name: 'enforce-double-string-quotes',
+        type: 'boolean',
+        default: false,
+        conflicts:['enforce-single-string-quotes']
     }
 ];
 

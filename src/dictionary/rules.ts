@@ -12,6 +12,7 @@ export type RuleType = 'keyword' | 'boolean';
 export interface BaseRule {
     name: string;
     type: RuleType;
+    conflicts: string[];
 }
 
 /**
