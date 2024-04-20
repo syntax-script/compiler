@@ -1,4 +1,5 @@
 import { Functionary, Rule, RuleType } from './index.js';
+import { NodeType } from '../types.js';
 
 const rules: Rule[] = [
     {
@@ -53,5 +54,7 @@ export namespace dictionary {
     export const PrimitiveTypes: string[] = ['int', 'decimal', 'boolean', 'string'];
     export const Keywords: string[] = ['export', 'rule', 'keyword', 'import', 'operator', 'function', 'global'];
     export const Functionaries: Functionary[] = func;
+    export const ExportableNodeTypes: NodeType[] = [NodeType.Function,NodeType.Operator,NodeType.Keyword,NodeType.Rule];
+    export const StatementTypesWithBody: NodeType[] = [NodeType.Operator,NodeType.Function,NodeType.Global];
 
 }
