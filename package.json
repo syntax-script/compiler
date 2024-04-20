@@ -12,7 +12,8 @@
     "postbuild": "cls && echo Builded",
     "prepack": "npm run build",
     "test": "estest",
-    "pretest": "tsc"
+    "pretest": "tsc",
+    "postpack": "cd ..&&cd ..&&cd .\\LanguageServer\\syntax-script\\server\\&&npm update @syntaxs/compiler"
   },
   "repository": {
     "type": "git",
