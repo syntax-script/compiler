@@ -1,8 +1,15 @@
-import { Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
+import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
+import { ImportStatement, NodeType, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
+import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
-import { isCompilerError } from './types.js';
-import { readFileSync } from 'fs';
+import { dictionary } from './dictionary/index.js';
+import { fileURLToPath } from 'url';
+import { join } from 'path';
+
+
+// Use with addRange to include semicolons
+const semiRange: Range = { end: { line: 0, character: 1 }, start: { line: 0, character: 0 } };
 
 /**
  * Creates a diagnostic report from the file path given.
@@ -19,8 +26,12 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
 
         const content = fileContent ?? readFileSync(filePath).toString();
         const tokens = (isSyx ? tokenizeSyx : tokenizeSys)(content);
-        (isSyx ? syxparser : sysparser).parseTokens(tokens, filePath);
+        const ast = (isSyx ? syxparser : sysparser).parseTokens(tokens, filePath);
 
+        items.push(...exportableCheck(ast, filePath));
+        items.push(...ruleConflictCheck(ast, filePath));
+        items.push(...sameRuleCheck(ast, filePath));
+        items.push(...importedExistentCheck(ast, filePath));
     } catch (error) {
         if (isCompilerError(error)) {
             items.push({
@@ -35,6 +46,215 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         return { items, kind: DocumentDiagnosticReportKind.Full };
     }
 
+}
+
+// Checks rule conflicts and adds warnings when there is two defined rules that conflict each other
+function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+    const items: Diagnostic[] = [];
+
+    ast.body.forEach(stmt => {
+        if (statementIsA(stmt, NodeType.Rule)) {
+            const dictRule = dictionary.Rules.find(r => r.name === stmt.rule);
+
+            ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
+                if (dictRule.conflicts.includes(otherRules.rule)) items.push({
+                    message: `Rule '${otherRules.rule}' conflicts with '${stmt.rule}', Both of them should not be defined.`,
+                    range: subRange(otherRules.range),
+                    source: 'syntax-script',
+                    severity: DiagnosticSeverity.Warning,
+                    data: [
+                        {
+                            title: `Remove ${stmt.rule} definition`,
+                            kind: CodeActionKind.QuickFix,
+                            edit: {
+                                changes: {
+                                    [filePath]: [
+                                        {
+                                            range: subRange(addRange(stmt.range, semiRange)),
+                                            newText: ''
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            title: `Remove ${otherRules.rule} definition`,
+                            kind: CodeActionKind.QuickFix,
+                            edit: {
+                                changes: {
+                                    [filePath]: [
+                                        {
+                                            range: subRange(addRange(otherRules.range, semiRange)),
+                                            newText: ''
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ] as CodeAction[]
+                });
+            });
+        }
+    });
+
+    return items;
+}
+
+// Checks if same rule is defined twice
+function sameRuleCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+    const items: Diagnostic[] = [];
+
+    ast.body.forEach(stmt => {
+        if (statementIsA(stmt, NodeType.Rule)) {
+            ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
+                if (otherRules.rule === stmt.rule) items.push({
+                    message: `Rule '${stmt.rule}' is already defined.`,
+                    range: subRange(stmt.range),
+                    source: 'syntax-script',
+                    severity: DiagnosticSeverity.Error,
+                    data: [
+                        {
+                            title: 'Remove this definition',
+                            kind: CodeActionKind.QuickFix,
+                            edit: {
+                                changes: {
+                                    [filePath]: [
+                                        {
+                                            range: subRange(addRange(stmt.range, semiRange)),
+                                            newText: ''
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ] as CodeAction[]
+                });
+            });
+        }
+    });
+
+    return items;
+}
+
+// Checks if an import statements refers to an empty file
+function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+    const items: Diagnostic[] = [];
+
+    ast.body.filter(r => statementIsA(r, NodeType.Import)).map(r => r as ImportStatement).forEach(stmt => {
+
+        const filePathButPath = fileURLToPath(filePath);
+        const fullPath = join(filePathButPath, '../', stmt.path);
+        if (!existsSync(fullPath)) items.push({
+            message: `Can't find file '${fullPath}' imported from '${filePathButPath}'`,
+            severity: DiagnosticSeverity.Error,
+            range: subRange(stmt.range),
+            source: 'syntax-script',
+            data: [
+                {
+                    title: 'Remove this import statement',
+                    kind: CodeActionKind.QuickFix,
+                    edit: {
+                        changes: {
+                            [filePath]: [
+                                { range: subRange(addRange(stmt.range, semiRange)), newText: '' }
+                            ]
+                        }
+                    }
+                }
+            ] as CodeAction[]
+        });
+
+        if (existsSync(fullPath)) {
+            const status = statSync(fullPath);
+
+            if (!status.isFile()) items.push({
+                message: `'${fullPath}' imported from '${filePathButPath}' doesn't seem to be a file.`,
+                severity: DiagnosticSeverity.Error,
+                range: subRange(stmt.range),
+                source: 'syntax-script',
+                data: [
+                    {
+                        title: 'Remove this import statement',
+                        kind: CodeActionKind.QuickFix,
+                        edit: {
+                            changes: {
+                                [filePath]: [
+                                    { range: subRange(addRange(stmt.range, semiRange)), newText: '' }
+                                ]
+                            }
+                        }
+                    }
+                ] as CodeAction[]
+            });
+
+            if (!fullPath.endsWith('.syx')) items.push({
+                message: `'${fullPath}' imported from '${filePathButPath}' cannot be imported.`,
+                severity: DiagnosticSeverity.Error,
+                range: subRange(stmt.range),
+                source: 'syntax-script',
+                data: [
+                    {
+                        title: 'Remove this import statement',
+                        kind: CodeActionKind.QuickFix,
+                        edit: {
+                            changes: {
+                                [filePath]: [
+                                    { range: subRange(addRange(stmt.range, semiRange)), newText: '' }
+                                ]
+                            }
+                        }
+                    }
+                ] as CodeAction[]
+            });
+        }
+
+    });
+
+    return items;
+}
+
+// Checks if every exported statement it actually exportable
+// TODO this doesnt work for some reason
+function exportableCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+
+    const items: Diagnostic[] = [];
+
+    ast.body.forEach(stmt => {
+
+        items.push({
+            message: `${stmt.modifiers.map(r => r.type).join(',')}l`,
+            range: subRange(stmt.range),
+            severity: DiagnosticSeverity.Error,
+            source: 'syntax-script',
+            data: []
+        });
+
+        if (stmt.modifiers.some(t => t.type === TokenType.ExportKeyword) && !dictionary.ExportableNodeTypes.includes(stmt.type)) items.push({
+            message: 'This statement cannot be exported.',
+            range: subRange(stmt.range),
+            severity: DiagnosticSeverity.Error,
+            source: 'syntax-script',
+            data: [
+                {
+                    title: 'Remove export keyword',
+                    kind: CodeActionKind.QuickFix,
+                    edit: {
+                        changes: {
+                            [filePath]: [
+                                {
+                                    newText: '', range: subRange(stmt.modifiers.find(r => r.type === TokenType.ExportKeyword).range)
+                                }
+                            ]
+                        }
+                    }
+                }
+            ] as CodeAction[]
+        });
+
+        // if (dictionary.ExportableNodeTypes.includes(stmt.type)) c((stmt as GlobalStatement).body);
+    });
+
+    return items;
 }
 
 /**
@@ -52,4 +272,8 @@ export function subRange(r: Range): Range {
     const d = r.end.line;
 
     return { start: { character: a === 0 ? 0 : a - 1, line: b === 0 ? 0 : b - 1 }, end: { character: c === 0 ? 0 : c - 1, line: d === 0 ? 0 : d - 1 } };
+}
+
+function addRange(r: Range, r2: Range): Range {
+    return { end: { line: r.end.line + r2.end.line, character: r.end.character + r.end.character }, start: { character: r.start.character, line: r.start.line } };
 }
