@@ -77,7 +77,6 @@ export function tokenizeSyx(source: string): Token[] {
     const src = source.split('');
     let lastString = 'n';
     let inString = false;
-    //TODO single quotes aren't working
     function t(s: string) {
         if (lastString === 'n') { lastString = s; inString = true; }
         else if (lastString === '\'' && s === '\'' || (lastString === '"' && s === '"')) { lastString = 'n'; inString = false; };
@@ -145,7 +144,7 @@ export function tokenizeSyx(source: string): Token[] {
  * @param {string} source Source string.
  * @returns A list of tokens generated from the source file.
  * @author efekos
- * @version 1.0.5
+ * @version 1.0.6
  * @since 0.0.2-alpha
  */
 export function tokenizeSys(source: string): Token[] {
@@ -154,9 +153,8 @@ export function tokenizeSys(source: string): Token[] {
     let lastString = 'n';
     let inString = false;
     function t(s: string) {
-        if (lastString === '\'' && s === '\'') { lastString = 'n'; inString = !inString; }
-        if (lastString === '"' && s === '"') { lastString = 'n'; inString = !inString; }
-        if (lastString === 'n') { lastString = s; inString = !inString; }
+        if (lastString === 'n') { lastString = s; inString = true; }
+        else if (lastString === '\'' && s === '\'' || (lastString === '"' && s === '"')) { lastString = 'n'; inString = false; };
     }
 
     let curPos = 0;
