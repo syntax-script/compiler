@@ -53,7 +53,7 @@ function isInt(src: string) {
 }
 
 function opr(line: number, character: number): Range {
-    return { end: { line, character:character+1 }, start: { line, character:character } };
+    return { end: { line, character: character + 1 }, start: { line, character: character } };
 }
 
 function pos(line: number, character: number): Position {
@@ -69,7 +69,7 @@ function tpr(start: Position, end: Position): Range {
  * @param {string} source Source string.
  * @returns A list of tokens generated from source string.
  * @author efekos
- * @version 1.0.8
+ * @version 1.0.9
  * @since 0.0.2-alpha
  */
 export function tokenizeSyx(source: string): Token[] {
@@ -77,34 +77,34 @@ export function tokenizeSyx(source: string): Token[] {
     const src = source.split('');
     let lastString = 'n';
     let inString = false;
-    function t(s:string){
-        if(lastString==='\''&&s==='\'') {lastString='n';inString = !inString;}
-        if(lastString==='"'&&s==='"') {lastString='n';inString = !inString;}
-        if(lastString==='n') {lastString=s;inString=!inString;}
+    //TODO single quotes aren't working
+    function t(s: string) {
+        if (lastString === 'n') { lastString = s; inString = true; }
+        else if (lastString === '\'' && s === '\'' || (lastString === '"' && s === '"')) { lastString = 'n'; inString = false; };
     }
     let curPos = 1;
     let curLine = 1;
 
     while (src.length > 0) {
-        if (src[0] === '/' && src[1] === '/'&&!inString) {
+        if (src[0] === '/' && src[1] === '/' && !inString) {
             while (src.length > 0 && src[0] as string !== '\n') {
                 src.shift();
                 curPos++;
             }
         }
-        if (src[0] === '(') tokens.push({ type: inString?20:TokenType.OpenParen, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === ')') tokens.push({ type: inString?20:TokenType.CloseParen, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '{') tokens.push({ type: inString?20:TokenType.OpenBrace, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '}') tokens.push({ type: inString?20:TokenType.CloseBrace, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '[') tokens.push({ type: inString?20:TokenType.OpenSquare, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === ']') tokens.push({ type: inString?20:TokenType.CloseSquare, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === ',') tokens.push({ type: inString?20:TokenType.Comma, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === ';') tokens.push({ type: inString?20:TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '<') tokens.push({ type: inString?20:TokenType.OpenDiamond, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '>') tokens.push({ type: inString?20:TokenType.CloseDiamond, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '\'') {tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) });t('\'');}
-        else if (src[0] === '"') {tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) });t('"');}
-        else if (src[0] === '|') tokens.push({ type: inString?20:TokenType.VarSeperator, value: src.shift(), range: opr(curLine, curPos++) });
+        if (src[0] === '(') tokens.push({ type: TokenType.OpenParen, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ')') tokens.push({ type: TokenType.CloseParen, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '{') tokens.push({ type: TokenType.OpenBrace, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '}') tokens.push({ type: TokenType.CloseBrace, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '[') tokens.push({ type: TokenType.OpenSquare, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ']') tokens.push({ type: TokenType.CloseSquare, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ',') tokens.push({ type: TokenType.Comma, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '<') tokens.push({ type: TokenType.OpenDiamond, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '>') tokens.push({ type: TokenType.CloseDiamond, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '\'') { tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) }); t('\''); }
+        else if (src[0] === '"') { tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) }); t('"'); }
+        else if (src[0] === '|') tokens.push({ type: TokenType.VarSeperator, value: src.shift(), range: opr(curLine, curPos++) });
         else if (src[0] === '+' && chars.includes(src[1])) {
             if (src[1] === 's') tokens.push({ type: TokenType.WhitespaceIdentifier, value: '+s', range: tpr(pos(curLine, curPos), pos(curLine, curPos + 2)) });
             curPos += 2;
@@ -128,7 +128,7 @@ export function tokenizeSyx(source: string): Token[] {
 
             const reserved = keywords[ident];
             tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range: tpr(pos(curLine, startPos), pos(curLine, curPos)) });
-        } else if (isSkippable(src[0])&&!inString) {
+        } else if (isSkippable(src[0]) && !inString) {
             src.shift();
             curPos++;
             if (src[0] === '\n') { curLine++; curPos = 0; };
@@ -153,19 +153,19 @@ export function tokenizeSys(source: string): Token[] {
     const tokens: Token[] = [];
     let lastString = 'n';
     let inString = false;
-    function t(s:string){
-        if(lastString==='\''&&s==='\'') {lastString='n';inString = !inString;}
-        if(lastString==='"'&&s==='"') {lastString='n';inString = !inString;}
-        if(lastString==='n') {lastString=s;inString=!inString;}
+    function t(s: string) {
+        if (lastString === '\'' && s === '\'') { lastString = 'n'; inString = !inString; }
+        if (lastString === '"' && s === '"') { lastString = 'n'; inString = !inString; }
+        if (lastString === 'n') { lastString = s; inString = !inString; }
     }
 
     let curPos = 0;
     let curLine = 1;
 
     while (src.length > 0 && `${src[0]}${src[1]}${src[2]}` !== ':::') {
-        if (src[0] === ';') tokens.push({ type: inString?20:TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
-        else if (src[0] === '\'') {tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) });t('\'');}
-        else if (src[0] === '"') {tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) });t('"');}
+        if (src[0] === ';') tokens.push({ type: TokenType.Semicolon, value: src.shift(), range: opr(curLine, curPos++) });
+        else if (src[0] === '\'') { tokens.push({ type: TokenType.SingleQuote, value: src.shift(), range: opr(curLine, curPos++) }); t('\''); }
+        else if (src[0] === '"') { tokens.push({ type: TokenType.DoubleQuote, value: src.shift(), range: opr(curLine, curPos++) }); t('"'); }
         else if (isAlphabetic(src[0])) {
             let ident = '';
             const startPos = curPos;
@@ -176,7 +176,7 @@ export function tokenizeSys(source: string): Token[] {
 
             const reserved = keywords[ident];
             tokens.push({ type: reserved ?? TokenType.Identifier, value: ident, range: tpr(pos(curLine, startPos), pos(curLine, curPos)) });
-        } else if (isSkippable(src[0])&&!inString) {
+        } else if (isSkippable(src[0]) && !inString) {
             src.shift();
             curPos++;
             if (src[0] === '\n') curLine++;
