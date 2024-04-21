@@ -1,5 +1,5 @@
 import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
-import { ImportStatement, NodeType, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
+import { GlobalStatement, ImportStatement, NodeType, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
@@ -15,6 +15,9 @@ const semiRange: Range = { end: { line: 0, character: 1 }, start: { line: 0, cha
  * Creates a diagnostic report from the file path given.
  * @param {string} filePath Path of the file to create a report. 
  * @param {string} fileContent Content of the file if it is already fetched. 
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.2-alpha
  * @returns A diagnostic report language servers can use.
  */
 export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent?: string): FullDocumentDiagnosticReport {
@@ -28,7 +31,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         const tokens = (isSyx ? tokenizeSyx : tokenizeSys)(content);
         const ast = (isSyx ? syxparser : sysparser).parseTokens(tokens, filePath);
 
-        items.push(...exportableCheck(ast, filePath));
+        items.push(...exportableCheck(ast.body, filePath));
         items.push(...ruleConflictCheck(ast, filePath));
         items.push(...sameRuleCheck(ast, filePath));
         items.push(...importedExistentCheck(ast, filePath));
@@ -41,6 +44,8 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
                 source: 'syntax-script',
                 data: error.actions
             });
+        } else {
+            items.push({message:`Parser Error: ${error.message}`,range:{end:{line:0,character:1},start:{line:0,character:0}},severity:DiagnosticSeverity.Warning});
         }
     } finally {
         return { items, kind: DocumentDiagnosticReportKind.Full };
@@ -214,20 +219,11 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
 }
 
 // Checks if every exported statement it actually exportable
-// TODO this doesnt work for some reason
-function exportableCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+function exportableCheck(statements: Statement[], filePath: string): Diagnostic[] {
 
     const items: Diagnostic[] = [];
 
-    ast.body.forEach(stmt => {
-
-        items.push({
-            message: `${stmt.modifiers.map(r => r.type).join(',')}l`,
-            range: subRange(stmt.range),
-            severity: DiagnosticSeverity.Error,
-            source: 'syntax-script',
-            data: []
-        });
+    statements.forEach(stmt => {
 
         if (stmt.modifiers.some(t => t.type === TokenType.ExportKeyword) && !dictionary.ExportableNodeTypes.includes(stmt.type)) items.push({
             message: 'This statement cannot be exported.',
@@ -251,7 +247,7 @@ function exportableCheck(ast: ProgramStatement, filePath: string): Diagnostic[] 
             ] as CodeAction[]
         });
 
-        // if (dictionary.ExportableNodeTypes.includes(stmt.type)) c((stmt as GlobalStatement).body);
+        if (dictionary.StatementTypesWithBody.includes(stmt.type)) items.push(...exportableCheck((stmt as GlobalStatement).body,filePath));
     });
 
     return items;
