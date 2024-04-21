@@ -1,6 +1,6 @@
 import { CompileStatement, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, ProgramStatement, RuleStatement, TokenType, isCompilerError } from '../types.js';
 import { Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, Range } from 'lsp-types';
-import { describe, inst, it, onError } from '@efekos/es-test/bin/testRunner.js';
+import { describe, inst, it } from '@efekos/es-test/bin/testRunner.js';
 import { tokenizeSys, tokenizeSyx } from '../lexer.js';
 import { createSyntaxScriptDiagnosticReport } from '../diagnostic.js';
 import { expect } from 'chai';
@@ -23,7 +23,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('keyword hello;');
 
-            tokens.map(r=>r.range).forEach(r=>rangeExpectations(r));
+            tokens.map(r => r.range).forEach(r => rangeExpectations(r));
             expect(tokens[0].range).to.deep.equal({ end: { line: 1, character: 8 }, start: { line: 1, character: 1 } });
             expect(tokens[1].range).to.deep.equal({ end: { line: 1, character: 14 }, start: { line: 1, character: 9 } });
             expect(tokens[2].range).to.deep.equal({ end: { line: 1, character: 15 }, start: { line: 1, character: 14 } });
@@ -35,7 +35,7 @@ describe('Compiler module', () => {
             const tokens = tokenizeSyx('rule "imports-keyword": cray;');
 
             expect(tokens).to.be.a('array').to.have.lengthOf(10);
-            tokens.map(r=>r.range).forEach(r=>rangeExpectations(r));
+            tokens.map(r => r.range).forEach(r => rangeExpectations(r));
             expect(tokens[0].range).to.be.deep.equal({ end: { line: 1, character: 5 }, start: { line: 1, character: 1 } });
             expect(tokens[1].range).to.be.deep.equal({ end: { line: 1, character: 7 }, start: { line: 1, character: 6 } });
             expect(tokens[2].range).to.be.deep.equal({ end: { line: 1, character: 14 }, start: { line: 1, character: 7 } });
@@ -48,11 +48,11 @@ describe('Compiler module', () => {
 
         });
 
-        inst(()=>{
+        inst(() => {
             const tokens = tokenizeSyx('rule "return-function-value-enabled":true;');
 
             expect(tokens).to.be.a('array').to.have.lengthOf(14);
-            tokens.map(r=>r.range).forEach(r=>rangeExpectations(r));
+            tokens.map(r => r.range).forEach(r => rangeExpectations(r));
             expect(tokens[0].range).to.be.deep.equal({ end: { line: 1, character: 5 }, start: { line: 1, character: 1 } });
             expect(tokens[1].range).to.be.deep.equal({ end: { line: 1, character: 7 }, start: { line: 1, character: 6 } });
             expect(tokens[2].range).to.be.deep.equal({ end: { line: 1, character: 13 }, start: { line: 1, character: 7 } });

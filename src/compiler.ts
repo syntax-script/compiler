@@ -160,7 +160,7 @@ export class SyntaxScriptCompiler {
                 out.push(statementExport);
             } else if (statementIsA(statement, NodeType.Keyword)) {
                 out.push({ type: ExportType.Keyword, word: statement.word });
-            } else if (statementIsA(statement,NodeType.Global)) {
+            } else if (statementIsA(statement, NodeType.Global)) {
                 //TODO
             } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);
 

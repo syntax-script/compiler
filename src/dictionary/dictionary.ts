@@ -6,31 +6,31 @@ const rules: Rule[] = [
         name: 'imports-keyword',
         type: 'keyword',
         default: 'import',
-        conflicts:[]
+        conflicts: []
     },
     {
         name: 'function-value-return-enabled',
         type: 'boolean',
         default: false,
-        conflicts:[]
+        conflicts: []
     },
     {
         name: 'function-value-return-keyword',
         type: 'keyword',
         default: 'return',
-        conflicts:[]
+        conflicts: []
     },
     {
         name: 'enforce-single-string-quotes',
         type: 'boolean',
         default: false,
-        conflicts:['enforge-double-string-quotes']
+        conflicts: ['enforge-double-string-quotes']
     },
     {
         name: 'enforce-double-string-quotes',
         type: 'boolean',
         default: false,
-        conflicts:['enforce-single-string-quotes']
+        conflicts: ['enforce-single-string-quotes']
     }
 ];
 
@@ -54,7 +54,7 @@ export namespace dictionary {
     export const PrimitiveTypes: string[] = ['int', 'decimal', 'boolean', 'string'];
     export const Keywords: string[] = ['export', 'rule', 'keyword', 'import', 'operator', 'function', 'global'];
     export const Functionaries: Functionary[] = func;
-    export const ExportableNodeTypes: NodeType[] = [NodeType.Function,NodeType.Operator,NodeType.Keyword,NodeType.Rule,NodeType.Global];
-    export const StatementTypesWithBody: NodeType[] = [NodeType.Operator,NodeType.Function,NodeType.Global];
+    export const ExportableNodeTypes: NodeType[] = [NodeType.Function, NodeType.Operator, NodeType.Keyword, NodeType.Rule, NodeType.Global];
+    export const StatementTypesWithBody: NodeType[] = [NodeType.Operator, NodeType.Function, NodeType.Global];
 
 }

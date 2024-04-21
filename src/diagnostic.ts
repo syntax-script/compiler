@@ -45,7 +45,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
                 data: error.actions
             });
         } else {
-            items.push({message:`Parser Error: ${error.message}`,range:{end:{line:0,character:1},start:{line:0,character:0}},severity:DiagnosticSeverity.Warning});
+            items.push({ message: `Parser Error: ${error.message}`, range: { end: { line: 0, character: 1 }, start: { line: 0, character: 0 } }, severity: DiagnosticSeverity.Warning });
         }
     } finally {
         return { items, kind: DocumentDiagnosticReportKind.Full };
@@ -247,7 +247,7 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
             ] as CodeAction[]
         });
 
-        if (dictionary.StatementTypesWithBody.includes(stmt.type)) items.push(...exportableCheck((stmt as GlobalStatement).body,filePath));
+        if (dictionary.StatementTypesWithBody.includes(stmt.type)) items.push(...exportableCheck((stmt as GlobalStatement).body, filePath));
     });
 
     return items;
