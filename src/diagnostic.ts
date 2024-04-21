@@ -1,5 +1,5 @@
 import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
-import { GlobalStatement, ImportStatement, NodeType, OperatorStatement, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
+import { FunctionStatement, GlobalStatement, ImportStatement, KeywordStatement, NodeType, OperatorStatement, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
@@ -37,6 +37,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         items.push(...sameRuleCheck(ast, filePath));
         items.push(...importedExistentCheck(ast, filePath));
         items.push(...sameRegexCheck(ast,filePath));
+        items.push(...sameNameCheck(ast.body,filePath));
     } catch (error) {
         if (isCompilerError(error)) {
             items.push({
@@ -290,6 +291,41 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
 
         if (dictionary.StatementTypesWithBody.includes(stmt.type)) items.push(...exportableCheck((stmt as GlobalStatement).body, filePath));
     });
+
+    return items;
+}
+
+// Check if everything has a unique name
+function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] {
+    const items:Diagnostic[] = [];
+    
+    function c(s:Statement[]){
+        const encounteredNames = [];
+
+        s
+        .filter(r=>statementIsA(r,NodeType.Function)||statementIsA(r,NodeType.Global)||statementIsA(r,NodeType.Keyword))
+        .map(r=>{
+            if(statementIsA(r,NodeType.Function))return r as FunctionStatement;
+            if(statementIsA(r,NodeType.Global))return r as GlobalStatement;
+            if(statementIsA(r,NodeType.Keyword))return r as KeywordStatement;
+        }).forEach(stmt=>{
+
+            const n = stmt[statementIsA(stmt,NodeType.Keyword)?'word':'name'];
+
+            if(encounteredNames.includes(n)) items.push({
+                message:`Name '${n}' is already seen before.`,
+                range:subRange(stmt.range),
+                source:'syntax-script',
+                severity:DiagnosticSeverity.Error
+            });
+            else encounteredNames.push(n);
+
+            if(statementIsA(stmt,NodeType.Global)) c(stmt.body);
+        });
+
+    }
+
+    c(statements);
 
     return items;
 }
