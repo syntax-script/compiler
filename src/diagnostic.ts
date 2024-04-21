@@ -44,14 +44,13 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
                 message: error.message,
                 range: subRange(error.range),
                 severity: DiagnosticSeverity.Error,
-                source: 'syntax-script',
                 data: error.actions
             });
         } else {
             items.push({ message: `Parser Error: ${error.message}`, range: { end: { line: 0, character: 1 }, start: { line: 0, character: 0 } }, severity: DiagnosticSeverity.Warning });
         }
     } finally {
-        return { items, kind: DocumentDiagnosticReportKind.Full };
+        return { items:items.map(r=>{return {...r,source:'syntax-script'};}), kind: DocumentDiagnosticReportKind.Full };
     }
 
 }
@@ -68,7 +67,6 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                 if (dictRule.conflicts.includes(otherRules.rule)) items.push({
                     message: `Rule '${otherRules.rule}' conflicts with '${stmt.rule}', Both of them should not be defined.`,
                     range: subRange(otherRules.range),
-                    source: 'syntax-script',
                     severity: DiagnosticSeverity.Warning,
                     data: [
                         {
@@ -118,7 +116,6 @@ function sameRuleCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
                 if (otherRules.rule === stmt.rule) items.push({
                     message: `Rule '${stmt.rule}' is already defined.`,
                     range: subRange(stmt.range),
-                    source: 'syntax-script',
                     severity: DiagnosticSeverity.Error,
                     data: [
                         {
@@ -156,7 +153,6 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
             message: `Can't find file '${fullPath}' imported from '${filePathButPath}'`,
             severity: DiagnosticSeverity.Error,
             range: subRange(stmt.range),
-            source: 'syntax-script',
             data: [
                 {
                     title: 'Remove this import statement',
@@ -179,7 +175,6 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
                 message: `'${fullPath}' imported from '${filePathButPath}' doesn't seem to be a file.`,
                 severity: DiagnosticSeverity.Error,
                 range: subRange(stmt.range),
-                source: 'syntax-script',
                 data: [
                     {
                         title: 'Remove this import statement',
@@ -199,7 +194,6 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
                 message: `'${fullPath}' imported from '${filePathButPath}' cannot be imported.`,
                 severity: DiagnosticSeverity.Error,
                 range: subRange(stmt.range),
-                source: 'syntax-script',
                 data: [
                     {
                         title: 'Remove this import statement',
@@ -235,7 +229,6 @@ function sameRegexCheck(ast:ProgramStatement, filePath:string): Diagnostic[] {
             message:'Regex of this operator is same with another operator.',
             range:subRange(syxparser.combineTwo(stmt.regex[0].range,stmt.regex[stmt.regex.length-1].range)),
             severity:DiagnosticSeverity.Error,
-            source:'syntax-script',
             data:[
                 {
                     title:'Remove this operator',
@@ -271,7 +264,6 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
             message: 'This statement cannot be exported.',
             range: subRange(stmt.range),
             severity: DiagnosticSeverity.Error,
-            source: 'syntax-script',
             data: [
                 {
                     title: 'Remove export keyword',
@@ -315,7 +307,6 @@ function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] 
             if(encounteredNames.includes(n)) items.push({
                 message:`Name '${n}' is already seen before.`,
                 range:subRange(stmt.range),
-                source:'syntax-script',
                 severity:DiagnosticSeverity.Error
             });
             else encounteredNames.push(n);
