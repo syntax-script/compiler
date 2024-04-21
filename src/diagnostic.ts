@@ -1,8 +1,9 @@
 import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
-import { GlobalStatement, ImportStatement, NodeType, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
+import { GlobalStatement, ImportStatement, NodeType, OperatorStatement, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
+import { CompilerFunctions } from './compiler.js';
 import { dictionary } from './dictionary/index.js';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
@@ -35,6 +36,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         items.push(...ruleConflictCheck(ast, filePath));
         items.push(...sameRuleCheck(ast, filePath));
         items.push(...importedExistentCheck(ast, filePath));
+        items.push(...sameRegexCheck(ast,filePath));
     } catch (error) {
         if (isCompilerError(error)) {
             items.push({
@@ -212,6 +214,45 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
                 ] as CodeAction[]
             });
         }
+
+    });
+
+    return items;
+}
+
+// Checks if there are multiple operators with the same regex
+function sameRegexCheck(ast:ProgramStatement, filePath:string): Diagnostic[] {
+    const items:Diagnostic[] = [];
+
+    const encounteredRegexes:RegExp[] = [];
+
+    ast.body.filter(r=>statementIsA(r,NodeType.Operator)).map(r => r as OperatorStatement).forEach(stmt=>{
+
+        const regex = new RegExp(CompilerFunctions.generateRegexMatcher(stmt));
+
+        if(encounteredRegexes.some(r=>r.source===regex.source)) items.push({
+            message:'Regex of this operator is same with another operator.',
+            range:subRange(syxparser.combineTwo(stmt.regex[0].range,stmt.regex[stmt.regex.length-1].range)),
+            severity:DiagnosticSeverity.Error,
+            source:'syntax-script',
+            data:[
+                {
+                    title:'Remove this operator',
+                    kind:CodeActionKind.QuickFix,
+                    edit:{
+                        changes:{
+                            [filePath]:[
+                                {
+                                    newText:'',
+                                    range:subRange(stmt.range)
+                                }
+                            ]
+                        }
+                    }
+                }
+            ] as CodeAction[]
+        });
+        else encounteredRegexes.push(regex);
 
     });
 
