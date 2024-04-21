@@ -29,23 +29,21 @@ describe('Compiler module', () => {
     });
 
     it('should provide correct tokenization', () => {
-        const t = tokenizeSyx('class } > ) ] , compile " export function global random import imports 1 keyword { < ( [ operator * rule ; \' | +s');
+        const t = tokenizeSyx('class } > ) ] , compile "" export function global random import imports 1 keyword { < ( [ operator * rule ; \'\' | +s');
         const tList = [
-            TokenType.ClassKeyword, TokenType.CloseBrace, TokenType.CloseDiamond, TokenType.CloseParen, TokenType.CloseSquare, TokenType.Comma, TokenType.CompileKeyword, TokenType.DoubleQuote,
+            TokenType.ClassKeyword, TokenType.CloseBrace, TokenType.CloseDiamond, TokenType.CloseParen, TokenType.CloseSquare, TokenType.Comma, TokenType.CompileKeyword, TokenType.DoubleQuote,TokenType.DoubleQuote,
             TokenType.ExportKeyword, TokenType.FunctionKeyword, TokenType.GlobalKeyword, TokenType.Identifier, TokenType.ImportKeyword, TokenType.ImportsKeyword, TokenType.IntNumber, TokenType.KeywordKeyword,
-            TokenType.OpenBrace, TokenType.OpenDiamond, TokenType.OpenParen, TokenType.OpenSquare, TokenType.OperatorKeyword, TokenType.Raw, TokenType.RuleKeyword, TokenType.Semicolon, TokenType.SingleQuote,
+            TokenType.OpenBrace, TokenType.OpenDiamond, TokenType.OpenParen, TokenType.OpenSquare, TokenType.OperatorKeyword, TokenType.Raw, TokenType.RuleKeyword, TokenType.Semicolon, TokenType.SingleQuote,TokenType.SingleQuote,
             TokenType.VarSeperator, TokenType.WhitespaceIdentifier, TokenType.EndOfFile
         ];
 
         expect(t).to.be.a('array');
-        expect(t).to.have.lengthOf(tList.length);
         expect(t.map(tt => tt.type)).to.be.deep.equal(tList);
 
-        const sys = tokenizeSys('import \' " ; :::');
-        const sysList = [TokenType.ImportKeyword, TokenType.SingleQuote, TokenType.DoubleQuote, TokenType.Semicolon, TokenType.EndOfFile];
+        const sys = tokenizeSys('import "" \'\' ; :::');
+        const sysList = [TokenType.ImportKeyword, TokenType.DoubleQuote,TokenType.DoubleQuote, TokenType.SingleQuote,TokenType.SingleQuote, TokenType.Semicolon, TokenType.EndOfFile];
 
         expect(sys).to.be.a('array');
-        expect(sys).to.have.lengthOf(sysList.length);
         expect(sys.map(tt => tt.type)).to.be.deep.equal(sysList);
     });
 
