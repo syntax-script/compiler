@@ -1,4 +1,4 @@
-import { CompileStatement, CompilerError, ImportStatement, ImportsStatement, NodeType, PrimitiveTypeExpression, StringExpression, TokenType, VariableExpression, statementIsA } from './types.js';
+import { CompileStatement, CompilerError, ImportStatement, ImportsStatement, NodeType, OperatorStatement, PrimitiveTypeExpression, StringExpression, TokenType, VariableExpression, statementIsA } from './types.js';
 import { dirname, join } from 'path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
@@ -80,20 +80,7 @@ export class SyntaxScriptCompiler {
 
 
                 //# Generate regexMatcher
-                let regexMatcher: RegExp = new RegExp('');
-                statement.regex.forEach(regexStatement => {
-
-                    if (regexStatement.type === NodeType.PrimitiveType) {
-                        regexMatcher = new RegExp(regexMatcher.source + regexes[(regexStatement as PrimitiveTypeExpression).value].source);
-                    }
-                    if (regexStatement.type === NodeType.WhitespaceIdentifier) {
-                        regexMatcher = new RegExp(regexMatcher.source + regexes['+s'].source);
-                    }
-                    if (regexStatement.type === NodeType.String) {
-                        regexMatcher = new RegExp(regexMatcher.source + escapeRegex((regexStatement as StringExpression).value));
-                    }
-
-                });
+                const regexMatcher: RegExp = CompilerFunctions.generateRegexMatcher(statement);
 
                 const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator };
 
@@ -397,4 +384,36 @@ export const regexes: Record<string, RegExp> = {
  */
 export function escapeRegex(src: string): string {
     return src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export namespace CompilerFunctions {
+
+
+    /**
+     * Generates {@link RegExp} of the given operator statement.
+     * @param statement An operator statement.
+     * @returns A regular expression generated from regex of the operator statement.
+     * @author efekos
+     * @version 1.0.0
+     * @since 0.0.2-alpha
+     */
+    export function generateRegexMatcher(statement:OperatorStatement):RegExp{
+        let regexMatcher = new RegExp('');
+        statement.regex.forEach(regexStatement => {
+
+            if (regexStatement.type === NodeType.PrimitiveType) {
+                regexMatcher = new RegExp(regexMatcher.source + regexes[(regexStatement as PrimitiveTypeExpression).value].source);
+            }
+            if (regexStatement.type === NodeType.WhitespaceIdentifier) {
+                regexMatcher = new RegExp(regexMatcher.source + regexes['+s'].source);
+            }
+            if (regexStatement.type === NodeType.String) {
+                regexMatcher = new RegExp(regexMatcher.source + escapeRegex((regexStatement as StringExpression).value));
+            }
+
+        });
+
+        return regexMatcher;
+    }
+
 }
