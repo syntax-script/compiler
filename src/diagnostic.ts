@@ -36,8 +36,8 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
         items.push(...ruleConflictCheck(ast, filePath));
         items.push(...sameRuleCheck(ast, filePath));
         items.push(...importedExistentCheck(ast, filePath));
-        items.push(...sameRegexCheck(ast,filePath));
-        items.push(...sameNameCheck(ast.body,filePath));
+        items.push(...sameRegexCheck(ast, filePath));
+        items.push(...sameNameCheck(ast.body, filePath));
     } catch (error) {
         if (isCompilerError(error)) {
             items.push({
@@ -50,7 +50,7 @@ export function createSyntaxScriptDiagnosticReport(filePath: string, fileContent
             items.push({ message: `Parser Error: ${error.message}`, range: { end: { line: 0, character: 1 }, start: { line: 0, character: 0 } }, severity: DiagnosticSeverity.Warning });
         }
     } finally {
-        return { items:items.map(r=>{return {...r,source:'syntax-script'};}), kind: DocumentDiagnosticReportKind.Full };
+        return { items: items.map(r => { return { ...r, source: 'syntax-script' }; }), kind: DocumentDiagnosticReportKind.Full };
     }
 
 }
@@ -216,29 +216,29 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
 }
 
 // Checks if there are multiple operators with the same regex
-function sameRegexCheck(ast:ProgramStatement, filePath:string): Diagnostic[] {
-    const items:Diagnostic[] = [];
+function sameRegexCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
+    const items: Diagnostic[] = [];
 
-    const encounteredRegexes:RegExp[] = [];
+    const encounteredRegexes: RegExp[] = [];
 
-    ast.body.filter(r=>statementIsA(r,NodeType.Operator)).map(r => r as OperatorStatement).forEach(stmt=>{
+    ast.body.filter(r => statementIsA(r, NodeType.Operator)).map(r => r as OperatorStatement).forEach(stmt => {
 
         const regex = new RegExp(CompilerFunctions.generateRegexMatcher(stmt));
 
-        if(encounteredRegexes.some(r=>r.source===regex.source)) items.push({
-            message:'Regex of this operator is same with another operator.',
-            range:subRange(syxparser.combineTwo(stmt.regex[0].range,stmt.regex[stmt.regex.length-1].range)),
-            severity:DiagnosticSeverity.Error,
-            data:[
+        if (encounteredRegexes.some(r => r.source === regex.source)) items.push({
+            message: 'Regex of this operator is same with another operator.',
+            range: subRange(syxparser.combineTwo(stmt.regex[0].range, stmt.regex[stmt.regex.length - 1].range)),
+            severity: DiagnosticSeverity.Error,
+            data: [
                 {
-                    title:'Remove this operator',
-                    kind:CodeActionKind.QuickFix,
-                    edit:{
-                        changes:{
-                            [filePath]:[
+                    title: 'Remove this operator',
+                    kind: CodeActionKind.QuickFix,
+                    edit: {
+                        changes: {
+                            [filePath]: [
                                 {
-                                    newText:'',
-                                    range:subRange(stmt.range)
+                                    newText: '',
+                                    range: subRange(stmt.range)
                                 }
                             ]
                         }
@@ -289,30 +289,30 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
 
 // Check if everything has a unique name
 function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] {
-    const items:Diagnostic[] = [];
-    
-    function c(s:Statement[]){
+    const items: Diagnostic[] = [];
+
+    function c(s: Statement[]) {
         const encounteredNames = [];
 
         s
-        .filter(r=>statementIsA(r,NodeType.Function)||statementIsA(r,NodeType.Global)||statementIsA(r,NodeType.Keyword))
-        .map(r=>{
-            if(statementIsA(r,NodeType.Function))return r as FunctionStatement;
-            if(statementIsA(r,NodeType.Global))return r as GlobalStatement;
-            if(statementIsA(r,NodeType.Keyword))return r as KeywordStatement;
-        }).forEach(stmt=>{
+            .filter(r => statementIsA(r, NodeType.Function) || statementIsA(r, NodeType.Global) || statementIsA(r, NodeType.Keyword))
+            .map(r => {
+                if (statementIsA(r, NodeType.Function)) return r as FunctionStatement;
+                if (statementIsA(r, NodeType.Global)) return r as GlobalStatement;
+                if (statementIsA(r, NodeType.Keyword)) return r as KeywordStatement;
+            }).forEach(stmt => {
 
-            const n = stmt[statementIsA(stmt,NodeType.Keyword)?'word':'name'];
+                const n = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
 
-            if(encounteredNames.includes(n)) items.push({
-                message:`Name '${n}' is already seen before.`,
-                range:subRange(stmt.range),
-                severity:DiagnosticSeverity.Error
+                if (encounteredNames.includes(n)) items.push({
+                    message: `Name '${n}' is already seen before.`,
+                    range: subRange(stmt.range),
+                    severity: DiagnosticSeverity.Error
+                });
+                else encounteredNames.push(n);
+
+                if (statementIsA(stmt, NodeType.Global)) c(stmt.body);
             });
-            else encounteredNames.push(n);
-
-            if(statementIsA(stmt,NodeType.Global)) c(stmt.body);
-        });
 
     }
 

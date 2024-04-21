@@ -397,7 +397,7 @@ export namespace CompilerFunctions {
      * @version 1.0.0
      * @since 0.0.2-alpha
      */
-    export function generateRegexMatcher(statement:OperatorStatement):RegExp{
+    export function generateRegexMatcher(statement: OperatorStatement): RegExp {
         let regexMatcher = new RegExp('');
         statement.regex.forEach(regexStatement => {
 
