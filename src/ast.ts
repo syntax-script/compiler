@@ -61,7 +61,7 @@ export namespace syxparser {
 
         if (rule.type === 'boolean') {
             const boolEx = parseExpression(false, false, true) as Expression;
-            if (!(statementIsA(boolEx, NodeType.String) && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`, filePath);
+            if (!(statementIsA(boolEx, NodeType.Identifier) && dictionary.RuleTypeRegexes.boolean.test(boolEx.value))) throw new CompilerError(boolEx.range, `Rule '${rule.name}' requires a boolean value, found '${boolEx.value}'.`, filePath);
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found '${at().value}'.`, filePath);
             tokens.shift();

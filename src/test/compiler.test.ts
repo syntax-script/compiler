@@ -215,7 +215,7 @@ describe('Compiler module', () => {
 
             const tokens = tokenizeSyx('rule \'function-value-return-enabled\': true;');
             const ast = syxparser.parseTokens(tokens, 'TEST_FILE');
-            const stmt: RuleStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 43 } }, modifiers: [], rule: {range:r(6,38),type:NodeType.String,value:'function-value-return-enabled',modifiers:[]}, value: 'true', type: NodeType.Rule };
+            const stmt: RuleStatement = { range: { start: { line: 1, character: 1 }, end: { line: 1, character: 43 } }, modifiers: [], rule: {range:r(6,37),type:NodeType.String,value:'function-value-return-enabled',modifiers:[]}, value: 'true', type: NodeType.Rule };
 
             astTypeExpectations(ast);
             expect(ast.body[0]).to.be.a('object').to.be.deep.equal(stmt);
