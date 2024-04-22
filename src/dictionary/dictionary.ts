@@ -10,6 +10,13 @@ const rules: Rule[] = [
         description:'Determines which keyword should be used to import modules using defined in an imports statement.'
     },
     {
+        name:'imports-with-quotes',
+        type: 'boolean',
+        default: true,
+        conflicts: [],
+        description: 'Determines whether to import modules defined with import statements with quotes or not.'
+    },
+    {
         name: 'function-value-return-enabled',
         type: 'boolean',
         default: false,
@@ -36,6 +43,27 @@ const rules: Rule[] = [
         default: false,
         conflicts: ['enforce-single-string-quotes'],
         description: 'Enforces string values to have double quotes in output. Useful for languages like Java where quote type matters.'
+    },
+    {
+        name: 'export-required',
+        type: 'boolean',
+        default : false,
+        conflicts: [],
+        description: 'Determines whether is it required to export a definable in order to reach it from another file.'
+    },
+    {
+        name: 'export-keyword',
+        type: 'keyword',
+        default: 'export',
+        conflicts: [],
+        description: 'Determines the keyword used to export a definable.'
+    },
+    {
+        name: 'export-enabled',
+        type: 'boolean',
+        default: true,
+        conflicts: [],
+        description : 'Determines whether is it possible to export a definable with a keyword.'
     }
 ];
 
