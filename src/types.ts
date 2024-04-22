@@ -259,7 +259,12 @@ export enum NodeType {
     /**
      * {@link SquareExpression}.
      */
-    Square
+    Square,
+
+    /**
+     * {@link IdentifierExpression}.
+     */
+    Identifier
 }
 
 /**
@@ -342,6 +347,17 @@ export interface StringExpression extends Expression {
 }
 
 /**
+ * An expression that represents an alphabetical identifier. Uses type {@link NodeType.Identifier}. Contains the name of something.
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.2-alpha
+ */
+export interface IdentifierExpression extends Expression {
+    type: NodeType.Identifier;
+    name: string;
+}
+
+/**
  * An expression that represents multiple statements inside braces (`{}`). Uses type {@link NodeType.Brace}.
  * @author efekos
  * @version 1.0.0
@@ -395,7 +411,7 @@ export interface OperatorStatement extends Statement {
  * @since 0.0.1-alpha
  */
 export interface KeywordStatement extends Statement {
-    word: string;
+    word: IdentifierExpression;
     type: NodeType.Keyword;
 }
 
@@ -408,7 +424,7 @@ export interface KeywordStatement extends Statement {
  */
 export interface ImportsStatement extends Statement {
     type: NodeType.Imports,
-    formats: string[];
+    formats: IdentifierExpression[];
     module: string;
 }
 
@@ -421,7 +437,7 @@ export interface ImportsStatement extends Statement {
  */
 export interface CompileStatement extends Statement {
     type: NodeType.Compile,
-    formats: string[],
+    formats: IdentifierExpression[],
     body: Expression[];
 }
 
@@ -434,7 +450,7 @@ export interface CompileStatement extends Statement {
  */
 export interface RuleStatement extends Statement {
     type: NodeType.Rule;
-    rule: string;
+    rule: StringExpression;
     value: unknown;
 }
 
@@ -447,7 +463,7 @@ export interface RuleStatement extends Statement {
  */
 export interface ImportStatement extends Statement {
     type: NodeType.Import,
-    path: string;
+    path: StringExpression;
 }
 
 /**
@@ -459,7 +475,7 @@ export interface ImportStatement extends Statement {
  */
 export interface FunctionStatement extends Statement {
     type: NodeType.Function,
-    name: string,
+    name: IdentifierExpression,
     arguments: string[];
     body: Statement[];
 }
@@ -473,7 +489,7 @@ export interface FunctionStatement extends Statement {
  */
 export interface GlobalStatement extends Statement {
     body: Statement[];
-    name: string;
+    name: IdentifierExpression;
 }
 
 
