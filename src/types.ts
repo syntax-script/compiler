@@ -173,7 +173,7 @@ export interface Token {
  * Every node type a syntax script declaration file can contain.
  * @author efekos
  * @since 0.0.1-alpha
- * @version 1.0.0
+ * @version 1.0.1
  */
 export enum NodeType {
 
@@ -407,7 +407,7 @@ export interface OperatorStatement extends Statement {
 /**
  * Keyword statement that registers an identifier as a keyword. This keyword can be used in several places. Uses type {@link NodeType.Keyword}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
 export interface KeywordStatement extends Statement {
@@ -419,20 +419,20 @@ export interface KeywordStatement extends Statement {
  * Imports statements indicate that a certain module should be imported to the file if the parent statement is used in .sys file.
  * Uses type {@link NodeType.Imports}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.2
  * @since 0.0.1-alpha
  */
 export interface ImportsStatement extends Statement {
     type: NodeType.Imports,
     formats: IdentifierExpression[];
-    module: string;
+    module: StringExpression;
 }
 
 /**
  * Compile statements determine what should be the result of an operator or a function when compiling to certain languages.
  * Uses typq {@link NodeType.Compile}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
 export interface CompileStatement extends Statement {
@@ -445,7 +445,7 @@ export interface CompileStatement extends Statement {
  * Rule statements define a specific rule about the source language, such as keyword usages or enabling/disabling certain
  * features of the language. Uses type {@link NodeType.Rule}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
 export interface RuleStatement extends Statement {
@@ -458,7 +458,7 @@ export interface RuleStatement extends Statement {
  * Import statements are used to import a .syx file from a .sys file. They can be used to import other .syx files from a
  * .syx file as well. Uses type {@link NodeType.Import}
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.1-alpha
  */
 export interface ImportStatement extends Statement {
@@ -470,13 +470,13 @@ export interface ImportStatement extends Statement {
  * Function statements are used to define possible function calls. How the function is called depends on the place this statement is
  * used. Uses type {@link NodeType.Function}.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.2
  * @since 0.0.1-alpha
  */
 export interface FunctionStatement extends Statement {
     type: NodeType.Function,
     name: IdentifierExpression,
-    arguments: string[];
+    arguments: PrimitiveTypeExpression[];
     body: Statement[];
 }
 
@@ -484,7 +484,7 @@ export interface FunctionStatement extends Statement {
  * Global statements are used to define values that are global. They can be global classes, interfaces, or just global methods depending on
  * the language. But the only thing that matters here is that they are global, and can be used from anywhere.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.1
  * @since 0.0.2-alpha
  */
 export interface GlobalStatement extends Statement {
@@ -496,12 +496,12 @@ export interface GlobalStatement extends Statement {
 /**
  * Represents any interface that is a node.
  * @author efekos
- * @version 1.0.0
+ * @version 1.0.3
  * @since 0.0.1-alpha
  */
 export type Node =
     ProgramStatement | OperatorStatement | CompileStatement | ImportStatement | ImportsStatement | FunctionStatement | KeywordStatement | RuleStatement | GlobalStatement |
-    StringExpression | PrimitiveTypeExpression | VariableExpression | WhitespaceIdentifierExpression | BraceExpression | SquareExpression | ParenExpression;
+    StringExpression | PrimitiveTypeExpression | VariableExpression | WhitespaceIdentifierExpression | BraceExpression | SquareExpression | ParenExpression | IdentifierExpression;
 
 /**
  * Represents a syxconfig.json file. This file contains a few properties for the compiler.
@@ -584,6 +584,7 @@ interface NodeTypes {
     [NodeType.Variable]: VariableExpression;
     [NodeType.WhitespaceIdentifier]: WhitespaceIdentifierExpression;
     [NodeType.Global]: GlobalStatement;
+    [NodeType.Identifier]: IdentifierExpression;
 }
 
 /**
