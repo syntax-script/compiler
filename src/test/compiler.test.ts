@@ -119,56 +119,56 @@ describe('Compiler module', () => {
         inst(
             _case(
                 'operator <int>"+"<int> {',
-                [TokenType.OperatorKeyword,TokenType.OpenDiamond,TokenType.Identifier,TokenType.CloseDiamond,TokenType.DoubleQuote,TokenType.Raw,TokenType.DoubleQuote,TokenType.OpenDiamond,TokenType.Identifier,TokenType.CloseDiamond,TokenType.OpenBrace,TokenType.EndOfFile]
+                [TokenType.OperatorKeyword, TokenType.OpenDiamond, TokenType.Identifier, TokenType.CloseDiamond, TokenType.DoubleQuote, TokenType.Raw, TokenType.DoubleQuote, TokenType.OpenDiamond, TokenType.Identifier, TokenType.CloseDiamond, TokenType.OpenBrace, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'o-+?',
-                [TokenType.Identifier,TokenType.Raw,TokenType.Raw,TokenType.Raw,TokenType.EndOfFile]
+                [TokenType.Identifier, TokenType.Raw, TokenType.Raw, TokenType.Raw, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'rmh09345kg9',
-                [TokenType.Identifier,TokenType.IntNumber,TokenType.Identifier,TokenType.IntNumber, TokenType.EndOfFile]
+                [TokenType.Identifier, TokenType.IntNumber, TokenType.Identifier, TokenType.IntNumber, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'rule \'custom-random-rule?\';',
-                [TokenType.RuleKeyword,TokenType.SingleQuote,20,20,20,20,20,20,TokenType.SingleQuote,TokenType.Semicolon, TokenType.EndOfFile]
+                [TokenType.RuleKeyword, TokenType.SingleQuote, 20, 20, 20, 20, 20, 20, TokenType.SingleQuote, TokenType.Semicolon, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'keyword pray;rule\'imports-keyword\': pray;',
-                [TokenType.KeywordKeyword,TokenType.Identifier,TokenType.Semicolon,TokenType.RuleKeyword,TokenType.SingleQuote,20,20,20,TokenType.SingleQuote,TokenType.Raw,TokenType.Identifier,TokenType.Semicolon, TokenType.EndOfFile]
+                [TokenType.KeywordKeyword, TokenType.Identifier, TokenType.Semicolon, TokenType.RuleKeyword, TokenType.SingleQuote, 20, 20, 20, TokenType.SingleQuote, TokenType.Raw, TokenType.Identifier, TokenType.Semicolon, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'çş',
-                [TokenType.Raw,TokenType.Raw, TokenType.EndOfFile]
+                [TokenType.Raw, TokenType.Raw, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'keyword altınasıçĞ;',
-                [TokenType.KeywordKeyword,TokenType.Identifier,20,TokenType.Identifier,20,20,20,TokenType.Semicolon, TokenType.EndOfFile]
+                [TokenType.KeywordKeyword, TokenType.Identifier, 20, TokenType.Identifier, 20, 20, 20, TokenType.Semicolon, TokenType.EndOfFile]
             )
         );
 
         inst(
             _case(
                 'keyword imsodonewiththistest12casesisenough',
-                [TokenType.KeywordKeyword,TokenType.Identifier,TokenType.IntNumber,TokenType.Identifier, TokenType.EndOfFile]
+                [TokenType.KeywordKeyword, TokenType.Identifier, TokenType.IntNumber, TokenType.Identifier, TokenType.EndOfFile]
             )
         );
 

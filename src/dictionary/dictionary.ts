@@ -7,10 +7,10 @@ const rules: Rule[] = [
         type: 'keyword',
         default: 'import',
         conflicts: [],
-        description:'Determines which keyword should be used to import modules using defined in an imports statement.'
+        description: 'Determines which keyword should be used to import modules using defined in an imports statement.'
     },
     {
-        name:'imports-with-quotes',
+        name: 'imports-with-quotes',
         type: 'boolean',
         default: true,
         conflicts: [],
@@ -47,7 +47,7 @@ const rules: Rule[] = [
     {
         name: 'export-required',
         type: 'boolean',
-        default : false,
+        default: false,
         conflicts: [],
         description: 'Determines whether is it required to export a definable in order to reach it from another file.'
     },
@@ -63,7 +63,7 @@ const rules: Rule[] = [
         type: 'boolean',
         default: true,
         conflicts: [],
-        description : 'Determines whether is it possible to export a definable with a keyword.'
+        description: 'Determines whether is it possible to export a definable with a keyword.'
     }
 ];
 
