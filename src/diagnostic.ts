@@ -61,10 +61,10 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
 
     ast.body.forEach(stmt => {
         if (statementIsA(stmt, NodeType.Rule)) {
-            const dictRule = dictionary.Rules.find(r => r.name === stmt.rule);
+            const dictRule = dictionary.Rules.find(r => r.name === stmt.rule.value);
 
             ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
-                if (dictRule.conflicts.includes(otherRules.rule)) items.push({
+                if (dictRule.conflicts.includes(otherRules.rule.value)) items.push({
                     message: `Rule '${otherRules.rule}' conflicts with '${stmt.rule}', Both of them should not be defined.`,
                     range: subRange(otherRules.range),
                     severity: DiagnosticSeverity.Warning,
@@ -148,7 +148,7 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
     ast.body.filter(r => statementIsA(r, NodeType.Import)).map(r => r as ImportStatement).forEach(stmt => {
 
         const filePathButPath = fileURLToPath(filePath);
-        const fullPath = join(filePathButPath, '../', stmt.path);
+        const fullPath = join(filePathButPath, '../', stmt.path.value);
         if (!existsSync(fullPath)) items.push({
             message: `Can't find file '${fullPath}' imported from '${filePathButPath}'`,
             severity: DiagnosticSeverity.Error,
