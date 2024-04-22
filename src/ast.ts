@@ -68,7 +68,7 @@ export namespace syxparser {
             return node({ type: NodeType.Rule, rule: ruleExpr, value: boolEx.value, range: combineTwo(token, boolEx.range), modifiers: [] }, put);
         } else if (rule.type === 'keyword') {
             const keyEx = parseExpression(false, false, true);
-            if (!statementIsA(keyEx, NodeType.String)) throw new CompilerError(keyEx.range, 'Excepted keyword.', filePath);
+            if (!statementIsA(keyEx, NodeType.Identifier)) throw new CompilerError(keyEx.range, 'Expected keyword.', filePath);
             if (!program.body.some(s => statementIsA(s, NodeType.Keyword) && s.word.value === keyEx.value)) throw new CompilerError(keyEx.range, `Can't find keyword '${keyEx.value}'.`, filePath, caf.mk(keyEx.value, program, keyEx.range, filePath));
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, `Expected semicolon after rule statement, found ${at().value}.`, filePath);

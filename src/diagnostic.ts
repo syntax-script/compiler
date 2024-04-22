@@ -113,7 +113,7 @@ function sameRuleCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
     ast.body.forEach(stmt => {
         if (statementIsA(stmt, NodeType.Rule)) {
             ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
-                if (otherRules.rule === stmt.rule) items.push({
+                if (otherRules.rule.value === stmt.rule.value) items.push({
                     message: `Rule '${stmt.rule.value}' is already defined.`,
                     range: subRange(stmt.rule.range),
                     severity: DiagnosticSeverity.Error,
