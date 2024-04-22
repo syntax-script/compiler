@@ -354,7 +354,6 @@ export interface StringExpression extends Expression {
  */
 export interface IdentifierExpression extends Expression {
     type: NodeType.Identifier;
-    name: string;
 }
 
 /**

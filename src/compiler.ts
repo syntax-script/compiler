@@ -65,7 +65,7 @@ export class SyntaxScriptCompiler {
      * Compiles one .syx file from the path given.
      * @param {string} file Path to a file to compile.
      * @author efekos
-     * @version 1.0.5
+     * @version 1.0.6
      * @since 0.0.2-alpha
      */
     public compileSyx(file: string) {
@@ -90,9 +90,9 @@ export class SyntaxScriptCompiler {
                         const compileStmt = stmt as CompileStatement;
 
                         compileStmt.formats.forEach(frmt => {
-                            if (operatorStmtExport.outputGenerators[frmt] !== undefined) throw new CompilerError(compileStmt.range, `Duplicate file format at compile statement \'${frmt}\'`);
+                            if (operatorStmtExport.outputGenerators[frmt.value] !== undefined) throw new CompilerError(compileStmt.range, `Duplicate file format at compile statement \'${frmt}\'`);
 
-                            operatorStmtExport.outputGenerators[frmt] = (src) => {
+                            operatorStmtExport.outputGenerators[frmt.value] = (src) => {
                                 let out = '';
 
                                 compileStmt.body.forEach(e => {
@@ -115,8 +115,8 @@ export class SyntaxScriptCompiler {
                         const importStmt = stmt as ImportsStatement;
 
                         importStmt.formats.forEach(frmt => {
-                            if (operatorStmtExport.imports[frmt] !== undefined) throw new CompilerError(importStmt.range, `Duplicate file format at imports statement \'${frmt}\'`);
-                            operatorStmtExport.imports[frmt] = importStmt.module;
+                            if (operatorStmtExport.imports[frmt.value] !== undefined) throw new CompilerError(importStmt.range, `Duplicate file format at imports statement \'${frmt}\'`);
+                            operatorStmtExport.imports[frmt.value] = importStmt.module.value;
                         });
 
                     } else throw new CompilerError(stmt.range, `Unexpected \'${stmt.type}\' statement insdie operator statement.`);
@@ -124,20 +124,20 @@ export class SyntaxScriptCompiler {
 
                 out.push(operatorStmtExport);
             } else if (statementIsA(statement, NodeType.Function)) {
-                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s]), name: statement.name, formatNames: {}, imports: {} };
+                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s.value]), name: statement.name.value, formatNames: {}, imports: {} };
 
                 statement.body.forEach(stmt => {
 
                     if (statementIsA(stmt, NodeType.Compile)) {
                         if (stmt.body[0].type !== NodeType.String) throw new CompilerError(stmt.range, 'Expected a string after compile statement parens');
                         stmt.formats.forEach(each => {
-                            if (statementExport.formatNames[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple compile statements for target language '${each}'`);
-                            statementExport.formatNames[each] = stmt.body[0].value;
+                            if (statementExport.formatNames[each.value] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple compile statements for target language '${each}'`);
+                            statementExport.formatNames[each.value] = stmt.body[0].value;
                         });
                     } else if (statementIsA(stmt, NodeType.Imports)) {
                         stmt.formats.forEach(each => {
-                            if (statementExport.imports[each] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple import statements for target language '${each}'`);
-                            statementExport.imports[each] = stmt.module;
+                            if (statementExport.imports[each.value] !== undefined) throw new CompilerError(stmt.range, `Encountered multiple import statements for target language '${each}'`);
+                            statementExport.imports[each.value] = stmt.module.value;
                         });
                     }
 
@@ -146,7 +146,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(statementExport);
             } else if (statementIsA(statement, NodeType.Keyword)) {
-                out.push({ type: ExportType.Keyword, word: statement.word });
+                out.push({ type: ExportType.Keyword, word: statement.word.value });
             } else if (statementIsA(statement, NodeType.Global)) {
                 //TODO
             } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);
@@ -189,7 +189,7 @@ export class SyntaxScriptCompiler {
             if (stmt.type === NodeType.Import) {
                 const importStmt = stmt as ImportStatement;
 
-                const pathToImport = join(dirname(file), importStmt.path.endsWith('.syx') ? importStmt.path : importStmt.path + '.syx');
+                const pathToImport = join(dirname(file), importStmt.path.value.endsWith('.syx') ? importStmt.path.value : importStmt.path.value + '.syx');
                 if (!existsSync(pathToImport)) throw new CompilerError(importStmt.range, `File \'${pathToImport}\' imported from \'${file}\' does not exist.`);
                 this.exportData[pathToImport].forEach(exported => {
                     if (exported.type === ExportType.Operator)
