@@ -1,5 +1,5 @@
 import { CodeAction, CodeActionKind, Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, FullDocumentDiagnosticReport, Range } from 'lsp-types';
-import { FunctionStatement, GlobalStatement, ImportStatement, KeywordStatement, NodeType, OperatorStatement, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
+import { FunctionStatement, GlobalStatement, IdentifierExpression, ImportStatement, KeywordStatement, NodeType, OperatorStatement, ProgramStatement, RuleStatement, Statement, TokenType, isCompilerError, statementIsA } from './types.js';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
@@ -65,12 +65,12 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
 
             ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
                 if (dictRule.conflicts.includes(otherRules.rule.value)) items.push({
-                    message: `Rule '${otherRules.rule}' conflicts with '${stmt.rule}', Both of them should not be defined.`,
-                    range: subRange(otherRules.range),
+                    message: `Rule '${otherRules.rule.value}' conflicts with '${stmt.rule.value}', Both of them should not be defined.`,
+                    range: subRange(otherRules.rule.range),
                     severity: DiagnosticSeverity.Warning,
                     data: [
                         {
-                            title: `Remove ${stmt.rule} definition`,
+                            title: `Remove ${stmt.rule.value} definition`,
                             kind: CodeActionKind.QuickFix,
                             edit: {
                                 changes: {
@@ -84,7 +84,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                             }
                         },
                         {
-                            title: `Remove ${otherRules.rule} definition`,
+                            title: `Remove ${otherRules.rule.value} definition`,
                             kind: CodeActionKind.QuickFix,
                             edit: {
                                 changes: {
@@ -114,8 +114,8 @@ function sameRuleCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
         if (statementIsA(stmt, NodeType.Rule)) {
             ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
                 if (otherRules.rule === stmt.rule) items.push({
-                    message: `Rule '${stmt.rule}' is already defined.`,
-                    range: subRange(stmt.range),
+                    message: `Rule '${stmt.rule.value}' is already defined.`,
+                    range: subRange(stmt.rule.range),
                     severity: DiagnosticSeverity.Error,
                     data: [
                         {
@@ -152,7 +152,7 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
         if (!existsSync(fullPath)) items.push({
             message: `Can't find file '${fullPath}' imported from '${filePathButPath}'`,
             severity: DiagnosticSeverity.Error,
-            range: subRange(stmt.range),
+            range: subRange(stmt.path.range),
             data: [
                 {
                     title: 'Remove this import statement',
@@ -174,7 +174,7 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
             if (!status.isFile()) items.push({
                 message: `'${fullPath}' imported from '${filePathButPath}' doesn't seem to be a file.`,
                 severity: DiagnosticSeverity.Error,
-                range: subRange(stmt.range),
+                range: subRange(stmt.path.range),
                 data: [
                     {
                         title: 'Remove this import statement',
@@ -193,7 +193,7 @@ function importedExistentCheck(ast: ProgramStatement, filePath: string): Diagnos
             if (!fullPath.endsWith('.syx')) items.push({
                 message: `'${fullPath}' imported from '${filePathButPath}' cannot be imported.`,
                 severity: DiagnosticSeverity.Error,
-                range: subRange(stmt.range),
+                range: subRange(stmt.path.range),
                 data: [
                     {
                         title: 'Remove this import statement',
@@ -262,7 +262,7 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
 
         if (stmt.modifiers.some(t => t.type === TokenType.ExportKeyword) && !dictionary.ExportableNodeTypes.includes(stmt.type)) items.push({
             message: 'This statement cannot be exported.',
-            range: subRange(stmt.range),
+            range: subRange(stmt.modifiers.find(r=>r.type===TokenType.ExportKeyword).range),
             severity: DiagnosticSeverity.Error,
             data: [
                 {
@@ -302,14 +302,14 @@ function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] 
                 if (statementIsA(r, NodeType.Keyword)) return r as KeywordStatement;
             }).forEach(stmt => {
 
-                const n = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
-
-                if (encounteredNames.includes(n)) items.push({
-                    message: `Name '${n}' is already seen before.`,
-                    range: subRange(stmt.range),
+                const n:IdentifierExpression = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
+                
+                if (encounteredNames.includes(n.value)) items.push({
+                    message: `Name '${n.value}' is already seen before.`,
+                    range: subRange(n.range),
                     severity: DiagnosticSeverity.Error
                 });
-                else encounteredNames.push(n);
+                else encounteredNames.push(n.value);
 
                 if (statementIsA(stmt, NodeType.Global)) c(stmt.body);
             });
