@@ -6,13 +6,14 @@ export type RuleType = 'keyword' | 'boolean';
 /**
  * Base interface for rules. Represents a rule that can be modified by any file using `rule` modifier.
  * @author efekos
- * @version 1.0.0
- * @since 0.0.1-alpha
+ * @version 1.0.1
+ * @since 0.0.2-alpha
  */
 export interface BaseRule {
     name: string;
     type: RuleType;
     conflicts: string[];
+    description: string;
 }
 
 /**

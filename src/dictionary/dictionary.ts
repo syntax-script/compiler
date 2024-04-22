@@ -6,31 +6,36 @@ const rules: Rule[] = [
         name: 'imports-keyword',
         type: 'keyword',
         default: 'import',
-        conflicts: []
+        conflicts: [],
+        description:'Determines which keyword should be used to import modules using defined in an imports statement.'
     },
     {
         name: 'function-value-return-enabled',
         type: 'boolean',
         default: false,
-        conflicts: []
+        conflicts: [],
+        description: 'Determines whether is it possible to return a value from a function using a keyword.'
     },
     {
         name: 'function-value-return-keyword',
         type: 'keyword',
         default: 'return',
-        conflicts: []
+        conflicts: [],
+        description: 'Determines the keyword used to return a function from a keyword. Must be used with `function-value-return-enabled` set to true to make a difference.'
     },
     {
         name: 'enforce-single-string-quotes',
         type: 'boolean',
         default: false,
-        conflicts: ['enforge-double-string-quotes']
+        conflicts: ['enforge-double-string-quotes'],
+        description: 'Enforces string values to have single quotes in output. Useful for languages like Java where quote type matters.'
     },
     {
         name: 'enforce-double-string-quotes',
         type: 'boolean',
         default: false,
-        conflicts: ['enforce-single-string-quotes']
+        conflicts: ['enforce-single-string-quotes'],
+        description: 'Enforces string values to have double quotes in output. Useful for languages like Java where quote type matters.'
     }
 ];
 
