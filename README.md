@@ -1,4 +1,4 @@
-# @syntaxs/compiler `v0.0.2-alpha`
+# @syntaxs/compiler `v0.0.3-alpha`
 ![Stars](https://badgen.net/github/stars/syntax-script/compiler)
 ![Releases](https://badgen.net/github/release/syntax-script/compiler)
 ![Version](https://badgen.net/npm/v/@syntaxs/compiler)

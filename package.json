@@ -1,6 +1,6 @@
 {
   "name": "@syntaxs/compiler",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3-alpha",
   "description": "Compiler used to compile Syntax Script projects.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
