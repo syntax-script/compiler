@@ -1,7 +1,8 @@
-import { CompileStatement, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, ProgramStatement, RuleStatement, TokenType, isCompilerError } from '../types.js';
+import { CompileStatement, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement, NodeType, ProgramStatement, RuleStatement, Token, TokenType, isCompilerError } from '../types.js';
 import { Diagnostic, DiagnosticSeverity, DocumentDiagnosticReportKind, Range } from 'lsp-types';
 import { describe, inst, it } from '@efekos/es-test/bin/testRunner.js';
 import { tokenizeSys, tokenizeSyx } from '../lexer.js';
+import { HandlerFn } from '@efekos/es-test/bin/types.js';
 import { createSyntaxScriptDiagnosticReport } from '../diagnostic.js';
 import { expect } from 'chai';
 import { syxparser } from '../ast.js';
@@ -15,6 +16,14 @@ describe('Compiler module', () => {
         expect(r.start).to.have.property('character').to.be.a('number').to.be.greaterThanOrEqual(0);
         expect(r.end).to.have.property('character').to.be.a('number').to.be.greaterThanOrEqual(0);
         expect(r.end).to.have.property('line').to.be.a('number').to.be.greaterThanOrEqual(0);
+    }
+
+    function tokenExpectations(t: Token) {
+        expect(t).to.have.property('range').to.be.a('object');
+        rangeExpectations(t.range);
+
+        expect(t).to.have.property('type').to.be.a('number').to.be.greaterThanOrEqual(0);
+        expect(t).to.have.property('value').to.be.a('string').to.be.not.equal(undefined);
     }
 
     it('should provide correct ranges', () => {
@@ -72,23 +81,109 @@ describe('Compiler module', () => {
     }, true);
 
     it('should provide correct tokenization', () => {
-        const t = tokenizeSyx('class } > ) ] , compile "" export function global random import imports 1 keyword { < ( [ operator * rule ; \'\' | +s');
-        const tList = [
-            TokenType.ClassKeyword, TokenType.CloseBrace, TokenType.CloseDiamond, TokenType.CloseParen, TokenType.CloseSquare, TokenType.Comma, TokenType.CompileKeyword, TokenType.DoubleQuote, TokenType.DoubleQuote,
-            TokenType.ExportKeyword, TokenType.FunctionKeyword, TokenType.GlobalKeyword, TokenType.Identifier, TokenType.ImportKeyword, TokenType.ImportsKeyword, TokenType.IntNumber, TokenType.KeywordKeyword,
-            TokenType.OpenBrace, TokenType.OpenDiamond, TokenType.OpenParen, TokenType.OpenSquare, TokenType.OperatorKeyword, TokenType.Raw, TokenType.RuleKeyword, TokenType.Semicolon, TokenType.SingleQuote, TokenType.SingleQuote,
-            TokenType.VarSeperator, TokenType.WhitespaceIdentifier, TokenType.EndOfFile
-        ];
 
-        expect(t).to.be.a('array');
-        expect(t.map(tt => tt.type)).to.be.deep.equal(tList);
+        function _case(src: string, types: TokenType[]): HandlerFn {
+            return () => {
+                const ts = tokenizeSyx(src);
 
-        const sys = tokenizeSys('import "" \'\' ; :::');
-        const sysList = [TokenType.ImportKeyword, TokenType.DoubleQuote, TokenType.DoubleQuote, TokenType.SingleQuote, TokenType.SingleQuote, TokenType.Semicolon, TokenType.EndOfFile];
+                expect(ts).to.be.a('array');
+                ts.forEach(t => tokenExpectations(t));
+                expect(ts.map(t => t.type)).to.be.deep.equal(types);
+            };
+        }
 
-        expect(sys).to.be.a('array');
-        expect(sys.map(tt => tt.type)).to.be.deep.equal(sysList);
-    });
+        inst(
+            _case('class } > ) ] , compile "" export function global random import imports 1 keyword { < ( [ operator * rule ; \'\' | +s', [
+                TokenType.ClassKeyword, TokenType.CloseBrace, TokenType.CloseDiamond, TokenType.CloseParen, TokenType.CloseSquare, TokenType.Comma, TokenType.CompileKeyword, TokenType.DoubleQuote, TokenType.DoubleQuote,
+                TokenType.ExportKeyword, TokenType.FunctionKeyword, TokenType.GlobalKeyword, TokenType.Identifier, TokenType.ImportKeyword, TokenType.ImportsKeyword, TokenType.IntNumber, TokenType.KeywordKeyword,
+                TokenType.OpenBrace, TokenType.OpenDiamond, TokenType.OpenParen, TokenType.OpenSquare, TokenType.OperatorKeyword, TokenType.Raw, TokenType.RuleKeyword, TokenType.Semicolon, TokenType.SingleQuote, TokenType.SingleQuote,
+                TokenType.VarSeperator, TokenType.WhitespaceIdentifier, TokenType.EndOfFile
+            ])
+        );
+
+        inst(
+            _case('class}>)],compile""exportfunctionglobalrandomimportimports1keyword{<([operator*rule;\'\'|+s', [
+                TokenType.ClassKeyword, TokenType.CloseBrace, TokenType.CloseDiamond, TokenType.CloseParen, TokenType.CloseSquare, TokenType.Comma, TokenType.CompileKeyword, TokenType.DoubleQuote, TokenType.DoubleQuote,
+                TokenType.Identifier, TokenType.IntNumber, TokenType.KeywordKeyword, TokenType.OpenBrace, TokenType.OpenDiamond, TokenType.OpenParen, TokenType.OpenSquare, TokenType.OperatorKeyword, TokenType.Raw,
+                TokenType.RuleKeyword, TokenType.Semicolon, TokenType.SingleQuote, TokenType.SingleQuote, TokenType.VarSeperator, TokenType.WhitespaceIdentifier, TokenType.EndOfFile
+            ])
+        );
+
+        inst(
+            _case(
+                '+s+s+s+s+s+s+s',
+                [TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.WhitespaceIdentifier, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'operator <int>"+"<int> {',
+                [TokenType.OperatorKeyword,TokenType.OpenDiamond,TokenType.Identifier,TokenType.CloseDiamond,TokenType.DoubleQuote,TokenType.Raw,TokenType.DoubleQuote,TokenType.OpenDiamond,TokenType.Identifier,TokenType.CloseDiamond,TokenType.OpenBrace,TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'o-+?',
+                [TokenType.Identifier,TokenType.Raw,TokenType.Raw,TokenType.Raw,TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'rmh09345kg9',
+                [TokenType.Identifier,TokenType.IntNumber,TokenType.Identifier,TokenType.IntNumber, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'rule \'custom-random-rule?\';',
+                [TokenType.RuleKeyword,TokenType.SingleQuote,20,20,20,20,20,20,TokenType.SingleQuote,TokenType.Semicolon, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'keyword pray;rule\'imports-keyword\': pray;',
+                [TokenType.KeywordKeyword,TokenType.Identifier,TokenType.Semicolon,TokenType.RuleKeyword,TokenType.SingleQuote,20,20,20,TokenType.SingleQuote,TokenType.Raw,TokenType.Identifier,TokenType.Semicolon, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'çş',
+                [TokenType.Raw,TokenType.Raw, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'keyword altınasıçĞ;',
+                [TokenType.KeywordKeyword,TokenType.Identifier,20,TokenType.Identifier,20,20,20,TokenType.Semicolon, TokenType.EndOfFile]
+            )
+        );
+
+        inst(
+            _case(
+                'keyword imsodonewiththistest12casesisenough',
+                [TokenType.KeywordKeyword,TokenType.Identifier,TokenType.IntNumber,TokenType.Identifier, TokenType.EndOfFile]
+            )
+        );
+
+        inst(() => {
+
+            const sys = tokenizeSys('import "" \'\' ; :::');
+            const sysList = [TokenType.ImportKeyword, TokenType.DoubleQuote, TokenType.DoubleQuote, TokenType.SingleQuote, TokenType.SingleQuote, TokenType.Semicolon, TokenType.EndOfFile];
+
+            sys.forEach(t => tokenExpectations(t));
+            expect(sys).to.be.a('array');
+            expect(sys.map(tt => tt.type)).to.be.deep.equal(sysList);
+
+        });
+
+    }, true);
 
     describe('should provide correct parsing', () => {
 
