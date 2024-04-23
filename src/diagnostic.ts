@@ -65,7 +65,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
 
             ast.body.filter(r => statementIsA(r, NodeType.Rule)).filter(r => r.range !== stmt.range).map(r => r as RuleStatement).forEach(otherRules => {
                 if (dictRule.conflicts.includes(otherRules.rule.value)) items.push({
-                    message: `Rule '${otherRules.rule.value}' conflicts with '${stmt.rule.value}', Both of them should not be defined.`,
+                    message: `Rule '${otherRules.rule.value}' conflicts with '${stmt.rule.value}', both of them should not be defined.`,
                     range: subRange(otherRules.rule.range),
                     severity: DiagnosticSeverity.Warning,
                     data: [

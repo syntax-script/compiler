@@ -332,8 +332,8 @@ describe('Compiler module', () => {
             const diag = rep.items[0];
 
             expect(diag).to.be.deep.equal({
-                message: 'rule \'enforce-single-string-quotes\' conflicts with \'enforce-double-string-quotes\', both of them should not be defined.',
-                severity: DiagnosticSeverity.Error, range: r0(47, 77), source: 'syntax-script',data: [
+                message: 'Rule \'enforce-single-string-quotes\' conflicts with \'enforce-double-string-quotes\', both of them should not be defined.',
+                severity: DiagnosticSeverity.Warning, range: r0(47, 77), source: 'syntax-script',data: [
                     {
                         title:'Remove enforce-double-string-quotes definition',
                         kind:CodeActionKind.QuickFix,
