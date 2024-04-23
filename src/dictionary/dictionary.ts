@@ -1,4 +1,5 @@
 import { Functionary, Rule, RuleType } from './index.js';
+import { ErrorMessage } from './messages.js';
 import { NodeType } from '../types.js';
 
 const rules: Rule[] = [
@@ -78,6 +79,14 @@ const func: Functionary[] = [
     }
 ];
 
+const message:Record<string,ErrorMessage> = {
+    misingSemicolon: 'Expected \';\'.',
+    expectedBoolean: (v:string) => `Expected boolean, got ${v}.`,
+    expectedString: (v:string) => `Expected string, got ${v}`,
+    expectedName: 'Expected name',
+    reservedName: (v:string) => `Name \'${v}\' is reserved.`
+};
+
 const regexes = { boolean: /^(true|false)$/, keyword: /[a-zA-Z]/ };
 
 export namespace dictionary {
@@ -89,5 +98,6 @@ export namespace dictionary {
     export const Functionaries: Functionary[] = func;
     export const ExportableNodeTypes: NodeType[] = [NodeType.Function, NodeType.Operator, NodeType.Keyword, NodeType.Rule, NodeType.Global];
     export const StatementTypesWithBody: NodeType[] = [NodeType.Operator, NodeType.Function, NodeType.Global];
+    export const ErrorMessages:Record<string,ErrorMessage> = message;
 
 }
