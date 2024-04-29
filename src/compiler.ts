@@ -82,7 +82,7 @@ export class SyntaxScriptCompiler {
                 //# Generate regexMatcher
                 const regexMatcher: RegExp = CompilerFunctions.generateRegexMatcher(statement);
 
-                const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator };
+                const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator, source:file };
 
                 //# Handle statements
                 statement.body.forEach(stmt => {
@@ -124,7 +124,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(operatorStmtExport);
             } else if (statementIsA(statement, NodeType.Function)) {
-                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s.value]), name: statement.name.value, formatNames: {}, imports: {} };
+                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s.value]), name: statement.name.value, formatNames: {}, imports: {}, source:file };
 
                 statement.body.forEach(stmt => {
 
@@ -146,7 +146,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(statementExport);
             } else if (statementIsA(statement, NodeType.Keyword)) {
-                out.push({ type: ExportType.Keyword, word: statement.word.value });
+                out.push({ type: ExportType.Keyword, word: statement.word.value, source:file });
             } else if (statementIsA(statement, NodeType.Global)) {
                 //TODO
             } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);
@@ -270,6 +270,7 @@ export enum ExportType {
  */
 export interface Exported {
     type: ExportType;
+    source: string;
 }
 
 /**
