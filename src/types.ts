@@ -598,3 +598,190 @@ interface NodeTypes {
 export function statementIsA<T extends keyof NodeTypes>(node: Statement, nodeType: T): node is NodeTypes[T] {
     return node.type === nodeType;
 }
+
+/**
+ * Type of something that can be exported.
+ * @version 1.0.1
+ * @since 0.0.1-alpha
+ * @author efekos
+ */
+export enum ExportType {
+
+    /**
+     * {@link ExportedOperator}.
+     */
+    Operator,
+
+    /**
+     * {@link ExportedFunction}.
+     */
+    Function,
+
+    /**
+     * {@link ExportedKeyword}.
+     */
+    Keyword,
+
+    /**
+     * {@link ExportedGlobal}.
+     */
+    Global
+
+}
+
+/**
+ * Base exportable interface.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.1-alpha
+ */
+export interface Exported {
+    type: ExportType;
+    source: string;
+}
+
+/**
+ * Represents an exported operator. Uses type {@link ExportType.Operator}.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.1-alpha
+ */
+export interface ExportedOperator extends Exported {
+    type: ExportType.Operator,
+    regexMatcher: RegExp;
+    outputGenerators: Record<string, OneParameterMethod<string, string>>;
+    imports: Record<string, string>;
+}
+
+/**
+ * Represents an exported function. Uses type {@link ExportType.Function}.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.1-alpha
+ */
+export interface ExportedFunction extends Exported {
+    type: ExportType.Function;
+    name: string;
+    args: RegExp[];
+    formatNames: Record<string, string>;
+    imports: Record<string, string>;
+}
+
+/**
+ * Represents an exported keyword. Uses type {@link ExportType.Keyword}.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.1-alpha
+ */
+export interface ExportedKeyword extends Exported {
+    type: ExportType.Keyword;
+    word: string;
+}
+
+/**
+ * A method that has one parameter with the type {@link V} and returns {@link R}.
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.1-alpha
+ */
+export type OneParameterMethod<V, R> = (v: V) => R;
+
+/**
+ * A method that takes no parameters and returns an {@link R}.
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.1-alpha
+ */
+export type ReturnerMethod<R> = () => R;
+
+/**
+ * Any interface that represents something exportable.
+ */
+export type AnyExportable = ExportedOperator | ExportedFunction | ExportedKeyword;
+
+export const regexes: Record<string, RegExp> = {
+    /**
+     * Regex for `int` primitive type. `int`s can be any number that does not contain fractional digits.
+     * @author efekos
+     * @since 0.0.1-alpha
+     * @version 1.0.0
+     */
+    int: /([0-9]+)/,
+
+    /**
+     * Regex used for `string` primitive type. `string`s are phrases wrapped with quotation marks that can contain anything.
+     * @author efekos
+     * @since 0.0.1-alpha
+     * @version 1.0.0
+     */
+    string: /('[\u0000-\uffff]*'|"[\u0000-\uffff]*")/,
+
+    /**
+     * Regex used for `boolean` primitive type. `boolean`s are one bit, but 0 is represented as `false` and 1 is `false`.
+     * @author efekos
+     * @since 0.0.1-alpha
+     * @version 1.0.0
+     */
+    boolean: /(true|false)/,
+
+    /**
+     * Regex used for `decimal` primitive type. `decimal`s are either integers or numbers with fractional digits.
+     * @author efekos
+     * @since 0.0.1-alpha
+     * @version 1.0.0
+     */
+    decimal: /([0-9]+(\.[0-9]+)?)/,
+
+    /**
+     * Regex used for whitespace identifiers, an identifier used to reference any amount of spaces.
+     * @author efekos
+     * @version 1.0.0
+     * @since 0.0.1-alpha
+     */
+    '+s': /\s*/
+
+};
+
+/**
+ * Escapes every RegExp character at the source string.
+ * @param src Source string.
+ * @returns Same string with every RegExp character replaced with '\\$&'. 
+ * @author efekos
+ * @version 1.0.0
+ * @since 0.0.1-alpha
+ */
+export function escapeRegex(src: string): string {
+    return src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export namespace CompilerFunctions {
+
+
+    /**
+     * Generates {@link RegExp} of the given operator statement.
+     * @param statement An operator statement.
+     * @returns A regular expression generated from regex of the operator statement.
+     * @author efekos
+     * @version 1.0.0
+     * @since 0.0.2-alpha
+     */
+    export function generateRegexMatcher(statement: OperatorStatement): RegExp {
+        let regexMatcher = new RegExp('');
+        statement.regex.forEach(regexStatement => {
+
+            if (regexStatement.type === NodeType.PrimitiveType) {
+                regexMatcher = new RegExp(regexMatcher.source + regexes[(regexStatement as PrimitiveTypeExpression).value].source);
+            }
+            if (regexStatement.type === NodeType.WhitespaceIdentifier) {
+                regexMatcher = new RegExp(regexMatcher.source + regexes['+s'].source);
+            }
+            if (regexStatement.type === NodeType.String) {
+                regexMatcher = new RegExp(regexMatcher.source + escapeRegex((regexStatement as StringExpression).value));
+            }
+
+        });
+
+        return regexMatcher;
+    }
+
+}
