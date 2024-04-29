@@ -226,7 +226,7 @@ function sameRegexCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
         const regex = new RegExp(CompilerFunctions.generateRegexMatcher(stmt));
 
         if (encounteredRegexes.some(r => r.source === regex.source)) items.push({
-            message: 'Regex of this operator is same with another operator.',
+            message: dictionary.ErrorMessages.reservedName(regex.source+''),
             range: subRange(syxparser.combineTwo(stmt.regex[0].range, stmt.regex[stmt.regex.length - 1].range)),
             severity: DiagnosticSeverity.Error,
             data: [
@@ -305,7 +305,7 @@ function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] 
                 const n:IdentifierExpression = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
                 
                 if (encounteredNames.includes(n.value)) items.push({
-                    message: `Name '${n.value}' is already seen before.`,
+                    message: dictionary.ErrorMessages.reservedName(n.value),
                     range: subRange(n.range),
                     severity: DiagnosticSeverity.Error
                 });
