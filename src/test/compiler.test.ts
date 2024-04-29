@@ -4,6 +4,7 @@ import { describe, inst, it } from '@efekos/es-test/bin/testRunner.js';
 import { tokenizeSys, tokenizeSyx } from '../lexer.js';
 import { HandlerFn } from '@efekos/es-test/bin/types.js';
 import { createSyntaxScriptDiagnosticReport } from '../diagnostic.js';
+import { dictionary } from '../dictionary/index.js';
 import { expect } from 'chai';
 import { syxparser } from '../ast.js';
 
@@ -312,7 +313,7 @@ describe('Compiler module', () => {
             baseExpectations(report);
 
             const diag = report.items[0];
-            const item: Diagnostic = { message: 'Expected \';\' after statement, found \'EOF\'.', range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }, severity: DiagnosticSeverity.Error, source: 'syntax-script', data: [] };
+            const item: Diagnostic = { message: dictionary.ErrorMessages.misingSemicolon, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }, severity: DiagnosticSeverity.Error, source: 'syntax-script', data: [] };
 
             expect(diag).to.have.property('message').to.be.a('string');
             expect(diag).to.have.property('range');
