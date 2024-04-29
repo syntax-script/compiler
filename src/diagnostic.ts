@@ -3,7 +3,7 @@ import { FunctionStatement, GlobalStatement, IdentifierExpression, ImportStateme
 import { existsSync, readFileSync, statSync } from 'fs';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
-import { CompilerFunctions } from './compiler.js';
+import { CompilerFunctions } from './types.js';
 import { dictionary } from './dictionary/index.js';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
