@@ -1,5 +1,4 @@
 import { Functionary, Rule, RuleType } from './index.js';
-import { ErrorMessage } from './messages.js';
 import { NodeType } from '../types.js';
 
 const rules: Rule[] = [
@@ -79,7 +78,7 @@ const func: Functionary[] = [
     }
 ];
 
-const message:Record<string,ErrorMessage> = {
+const messages = {
     misingSemicolon: 'Expected \';\'.',
     expectedBoolean: (v:string) => `Expected boolean, got ${v}.`,
     expectedString: (v:string) => `Expected string, got ${v}`,
@@ -98,6 +97,6 @@ export namespace dictionary {
     export const Functionaries: Functionary[] = func;
     export const ExportableNodeTypes: NodeType[] = [NodeType.Function, NodeType.Operator, NodeType.Keyword, NodeType.Rule, NodeType.Global];
     export const StatementTypesWithBody: NodeType[] = [NodeType.Operator, NodeType.Function, NodeType.Global];
-    export const ErrorMessages:Record<string,ErrorMessage> = message;
+    export const ErrorMessages = messages;
 
 }
