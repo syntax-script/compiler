@@ -1,9 +1,9 @@
-import { AnyExportable, ExportType, Exported, ExportedFunction, ExportedKeyword, ExportedOperator, OneParameterMethod, ReturnerMethod, SyntaxScriptCompiler, escapeRegex } from './compiler.js';
+import { AnyExportable, BraceExpression, CompileStatement, CompilerError, ExportType, Exported, ExportedFunction, ExportedKeyword, ExportedOperator, Expression, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement,Node, NodeType,OneParameterMethod, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, ReturnerMethod, RuleStatement, SquareExpression, Statement, StringExpression, SyxConfig, SyxConfigCompile, Token, TokenType, VariableExpression, WhitespaceIdentifierExpression, escapeRegex, isCompilerError, statementIsA } from './types.js';
 import { BaseRule, BooleanRule, Functionary, FunctionaryValueType, Rule, RuleType, StringRule, dictionary } from './dictionary/index.js';
-import { BraceExpression, CompileStatement, CompilerError, Expression, FunctionStatement, GlobalStatement, ImportStatement, ImportsStatement, KeywordStatement, Node, NodeType, OperatorStatement, ParenExpression, PrimitiveTypeExpression, ProgramStatement, RuleStatement, SquareExpression, Statement, StringExpression, SyxConfig, SyxConfigCompile, Token, TokenType, VariableExpression, WhitespaceIdentifierExpression, isCompilerError, statementIsA } from './types.js';
 import { createSyntaxScriptDiagnosticReport, subRange } from './diagnostic.js';
 import { sysparser, syxparser } from './ast.js';
 import { tokenizeSys, tokenizeSyx } from './lexer.js';
+import { SyntaxScriptCompiler  } from './compiler.js';
 
 export { sysparser, syxparser, dictionary };
 export { escapeRegex, createSyntaxScriptDiagnosticReport, tokenizeSys, tokenizeSyx, isCompilerError, statementIsA, subRange };
