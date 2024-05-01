@@ -76,7 +76,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                                 changes: {
                                     [filePath]: [
                                         {
-                                            range: subRange(addRange(stmt.range, semiRange)),
+                                            range: subRange(addRange(stmt.range,semiRange)),
                                             newText: ''
                                         }
                                     ]
@@ -90,7 +90,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                                 changes: {
                                     [filePath]: [
                                         {
-                                            range: subRange(addRange(otherRules.range, semiRange)),
+                                            range: subRange(addRange(otherRules.range,semiRange)),
                                             newText: ''
                                         }
                                     ]
@@ -339,5 +339,5 @@ export function subRange(r: Range): Range {
 }
 
 function addRange(r: Range, r2: Range): Range {
-    return { end: { line: r.end.line + r2.end.line, character: r.end.character + r.end.character }, start: { character: r.start.character, line: r.start.line } };
+    return { end: { line: r.end.line + r2.end.line, character: r.end.character + r2.end.character }, start: { character: r.start.character+r2.start.character, line: r.start.line+r2.start.line } };
 }

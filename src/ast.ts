@@ -73,7 +73,7 @@ export namespace syxparser {
 
             if (at().type !== TokenType.Semicolon) throw new CompilerError(at().range, dictionary.ErrorMessages.misingSemicolon, filePath);
             tokens.shift();
-            return node({ type: NodeType.Rule, rule: ruleExpr, value: keyEx.value, range: combineTwo(token, keyEx.range), modifiers: [] }, put);
+            return node({ type: NodeType.Rule, rule: ruleExpr, value: keyEx.value, range: combineTwo(token, token), modifiers: [] }, put);
         }
     }
 

@@ -343,7 +343,7 @@ describe('Compiler module', () => {
                     {
                         title:'Remove enforce-single-string-quotes definition',
                         kind:CodeActionKind.QuickFix,
-                        edit:{changes:{'TEST_FILE.syx':[{range:r0(42,83),newText:''}]}}
+                        edit:{changes:{'TEST_FILE.syx':[{range:r0(42,84),newText:''}]}}
                     }
                 ] as CodeAction[]
             } as Diagnostic);
