@@ -80,10 +80,10 @@ const func: Functionary[] = [
 
 const messages = {
     misingSemicolon: 'Expected \';\'.',
-    expectedBoolean: (v:string) => `Expected boolean, got ${v}.`,
-    expectedString: (v:string) => `Expected string, got ${v}`,
+    expectedBoolean: (v: string) => `Expected boolean, got ${v}.`,
+    expectedString: (v: string) => `Expected string, got ${v}`,
     expectedName: 'Expected name.',
-    reservedName: (v:string) => `Name \'${v}\' is reserved.`
+    reservedName: (v: string) => `Name \'${v}\' is reserved.`
 };
 
 const regexes = { boolean: /^(true|false)$/, keyword: /[a-zA-Z]/ };

@@ -1,4 +1,4 @@
-import { AnyExportable,CompilerFunctions,ExportType,ExportedFunction,ExportedOperator,regexes } from './types.js';
+import { AnyExportable, CompilerFunctions, ExportType, ExportedFunction, ExportedOperator, regexes } from './types.js';
 import { CompileStatement, CompilerError, ImportStatement, ImportsStatement, NodeType, TokenType, VariableExpression, statementIsA } from './types.js';
 import { dirname, join } from 'path';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
@@ -83,7 +83,7 @@ export class SyntaxScriptCompiler {
                 //# Generate regexMatcher
                 const regexMatcher: RegExp = CompilerFunctions.generateRegexMatcher(statement);
 
-                const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator, source:file };
+                const operatorStmtExport: ExportedOperator = { imports: {}, outputGenerators: {}, regexMatcher, type: ExportType.Operator, source: file };
 
                 //# Handle statements
                 statement.body.forEach(stmt => {
@@ -125,7 +125,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(operatorStmtExport);
             } else if (statementIsA(statement, NodeType.Function)) {
-                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s.value]), name: statement.name.value, formatNames: {}, imports: {}, source:file };
+                const statementExport: ExportedFunction = { type: ExportType.Function, args: statement.arguments.map(s => regexes[s.value]), name: statement.name.value, formatNames: {}, imports: {}, source: file };
 
                 statement.body.forEach(stmt => {
 
@@ -147,7 +147,7 @@ export class SyntaxScriptCompiler {
 
                 out.push(statementExport);
             } else if (statementIsA(statement, NodeType.Keyword)) {
-                out.push({ type: ExportType.Keyword, word: statement.word.value, source:file });
+                out.push({ type: ExportType.Keyword, word: statement.word.value, source: file });
             } else if (statementIsA(statement, NodeType.Global)) {
                 //TODO
             } else throw new CompilerError(statement.range, `Unexpected \'${statement.type}\' statement after export statement.`, file);

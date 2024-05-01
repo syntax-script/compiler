@@ -76,7 +76,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                                 changes: {
                                     [filePath]: [
                                         {
-                                            range: subRange(addRange(stmt.range,semiRange)),
+                                            range: subRange(addRange(stmt.range, semiRange)),
                                             newText: ''
                                         }
                                     ]
@@ -90,7 +90,7 @@ function ruleConflictCheck(ast: ProgramStatement, filePath: string): Diagnostic[
                                 changes: {
                                     [filePath]: [
                                         {
-                                            range: subRange(addRange(otherRules.range,semiRange)),
+                                            range: subRange(addRange(otherRules.range, semiRange)),
                                             newText: ''
                                         }
                                     ]
@@ -226,7 +226,7 @@ function sameRegexCheck(ast: ProgramStatement, filePath: string): Diagnostic[] {
         const regex = new RegExp(CompilerFunctions.generateRegexMatcher(stmt));
 
         if (encounteredRegexes.some(r => r.source === regex.source)) items.push({
-            message: dictionary.ErrorMessages.reservedName(regex.source+''),
+            message: dictionary.ErrorMessages.reservedName(regex.source + ''),
             range: subRange(syxparser.combineTwo(stmt.regex[0].range, stmt.regex[stmt.regex.length - 1].range)),
             severity: DiagnosticSeverity.Error,
             data: [
@@ -262,7 +262,7 @@ function exportableCheck(statements: Statement[], filePath: string): Diagnostic[
 
         if (stmt.modifiers.some(t => t.type === TokenType.ExportKeyword) && !dictionary.ExportableNodeTypes.includes(stmt.type)) items.push({
             message: 'This statement cannot be exported.',
-            range: subRange(stmt.modifiers.find(r=>r.type===TokenType.ExportKeyword).range),
+            range: subRange(stmt.modifiers.find(r => r.type === TokenType.ExportKeyword).range),
             severity: DiagnosticSeverity.Error,
             data: [
                 {
@@ -302,8 +302,8 @@ function sameNameCheck(statements: Statement[], filePath: string): Diagnostic[] 
                 if (statementIsA(r, NodeType.Keyword)) return r as KeywordStatement;
             }).forEach(stmt => {
 
-                const n:IdentifierExpression = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
-                
+                const n: IdentifierExpression = stmt[statementIsA(stmt, NodeType.Keyword) ? 'word' : 'name'];
+
                 if (encounteredNames.includes(n.value)) items.push({
                     message: dictionary.ErrorMessages.reservedName(n.value),
                     range: subRange(n.range),
@@ -339,5 +339,5 @@ export function subRange(r: Range): Range {
 }
 
 function addRange(r: Range, r2: Range): Range {
-    return { end: { line: r.end.line + r2.end.line, character: r.end.character + r2.end.character }, start: { character: r.start.character+r2.start.character, line: r.start.line+r2.start.line } };
+    return { end: { line: r.end.line + r2.end.line, character: r.end.character + r2.end.character }, start: { character: r.start.character + r2.start.character, line: r.start.line + r2.start.line } };
 }

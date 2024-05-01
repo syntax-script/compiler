@@ -53,7 +53,7 @@ export namespace syxparser {
      */
     export function parseRuleStatement(token: Token, put: boolean): Node {
         const ruleExpr = parseExpression(false, false) as Expression;
-        if (!statementIsA(ruleExpr, NodeType.String)) throw new CompilerError(ruleExpr.range,dictionary.ErrorMessages.expectedString(ruleExpr.value), filePath);
+        if (!statementIsA(ruleExpr, NodeType.String)) throw new CompilerError(ruleExpr.range, dictionary.ErrorMessages.expectedString(ruleExpr.value), filePath);
         if (at().value !== ':') throw new CompilerError(at().range, `Expected \':\' after rule name, found ${at().value}.`, filePath);
         tokens.shift();
         if (!dictionary.Rules.some(r => r.name === ruleExpr.value)) throw new CompilerError(ruleExpr.range, `Unknown rule '${ruleExpr.value}'.`, filePath);
@@ -107,10 +107,10 @@ export namespace syxparser {
      * @returns Parsed node.
      */
     export function parseFunctionStatement(token: Token, put: boolean): Node {
-        const statement: FunctionStatement = { type: NodeType.Function, arguments: [], name: {type:NodeType.Identifier,modifiers:[],value:'',range:defaultRange}, body: [], range: defaultRange, modifiers: [] };
+        const statement: FunctionStatement = { type: NodeType.Function, arguments: [], name: { type: NodeType.Identifier, modifiers: [], value: '', range: defaultRange }, body: [], range: defaultRange, modifiers: [] };
 
         if (at().type !== TokenType.Identifier) throw new CompilerError(at().range, `Expected identifier after function statement, found '${at().value}'.`, filePath);
-        statement.name = {type:NodeType.Identifier,modifiers:[],range:at().range,value:at().value};
+        statement.name = { type: NodeType.Identifier, modifiers: [], range: at().range, value: at().value };
         tokens.shift();
 
         while (at().type !== TokenType.OpenBrace) {
@@ -134,7 +134,7 @@ export namespace syxparser {
      * @returns Parsed node.
      */
     export function parseImportsStatement(token: Token, put: boolean) {
-        const statement: ImportsStatement = { type: NodeType.Imports, formats: [], module: {type:NodeType.String,modifiers:[],range:defaultRange,value:''}, range: defaultRange, modifiers: [] };
+        const statement: ImportsStatement = { type: NodeType.Imports, formats: [], module: { type: NodeType.String, modifiers: [], range: defaultRange, value: '' }, range: defaultRange, modifiers: [] };
 
         if (at().type !== TokenType.OpenParen) throw new CompilerError(at().range, 'Imports statement require parens.', filePath);
 
@@ -145,7 +145,7 @@ export namespace syxparser {
             if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.', filePath);
             else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.', filePath);
             else if (t.type === TokenType.Comma) { }
-            else if (t.type === TokenType.Identifier) statement.formats.push({type:NodeType.Identifier,modifiers:[],range:t.range,value:t.value});
+            else if (t.type === TokenType.Identifier) statement.formats.push({ type: NodeType.Identifier, modifiers: [], range: t.range, value: t.value });
             else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`, filePath);
         }
         tokens.shift(); // skip CloseParen
@@ -182,7 +182,7 @@ export namespace syxparser {
             if (t.type === TokenType.Comma && at().type !== TokenType.Identifier) throw new CompilerError(t.range, 'Expected identifier after comma.', filePath);
             else if (t.type === TokenType.Comma && statement.formats.length === 0) throw new CompilerError(t.range, 'Can\'t start with comma.', filePath);
             else if (t.type === TokenType.Comma) { }
-            else if (t.type === TokenType.Identifier) statement.formats.push({type:NodeType.Identifier,modifiers:[],range:t.range,value:t.value});
+            else if (t.type === TokenType.Identifier) statement.formats.push({ type: NodeType.Identifier, modifiers: [], range: t.range, value: t.value });
             else throw new CompilerError(t.range, `Expected comma or identifier, found '${t.value}'.`, filePath);
         }
         tokens.shift(); // skip CloseParen
@@ -227,11 +227,11 @@ export namespace syxparser {
      * @returns Parsed node.
      */
     export function parseGlobalStatement(token: Token, put: boolean) {
-        const stmt: GlobalStatement = { type: NodeType.Global, range: token.range, body: [], modifiers: [], name: {type:NodeType.Identifier,modifiers:[],range:defaultRange,value:''} };
+        const stmt: GlobalStatement = { type: NodeType.Global, range: token.range, body: [], modifiers: [], name: { type: NodeType.Identifier, modifiers: [], range: defaultRange, value: '' } };
 
         if (at().type !== TokenType.Identifier) throw new CompilerError(at().range, `Expected identifier after function statement, found '${at().value}'.`, filePath);
-        const {range,value} = tokens.shift();
-        stmt.name = {modifiers:[],type:NodeType.Identifier,range,value};
+        const { range, value } = tokens.shift();
+        stmt.name = { modifiers: [], type: NodeType.Identifier, range, value };
 
         const braceExpr = parseExpression(false, false, false);
         if (!statementIsA(braceExpr, NodeType.Brace)) throw new CompilerError(braceExpr.range, 'Expected braces after global name.', filePath);

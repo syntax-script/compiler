@@ -334,24 +334,24 @@ describe('Compiler module', () => {
 
             expect(diag).to.be.deep.equal({
                 message: 'Rule \'enforce-single-string-quotes\' conflicts with \'enforce-double-string-quotes\', both of them should not be defined.',
-                severity: DiagnosticSeverity.Warning, range: r0(47, 77), source: 'syntax-script',data: [
+                severity: DiagnosticSeverity.Warning, range: r0(47, 77), source: 'syntax-script', data: [
                     {
-                        title:'Remove enforce-double-string-quotes definition',
-                        kind:CodeActionKind.QuickFix,
-                        edit:{changes:{'TEST_FILE.syx':[{range:r0(0,42),newText:''}]}}
+                        title: 'Remove enforce-double-string-quotes definition',
+                        kind: CodeActionKind.QuickFix,
+                        edit: { changes: { 'TEST_FILE.syx': [{ range: r0(0, 42), newText: '' }] } }
                     },
                     {
-                        title:'Remove enforce-single-string-quotes definition',
-                        kind:CodeActionKind.QuickFix,
-                        edit:{changes:{'TEST_FILE.syx':[{range:r0(42,84),newText:''}]}}
+                        title: 'Remove enforce-single-string-quotes definition',
+                        kind: CodeActionKind.QuickFix,
+                        edit: { changes: { 'TEST_FILE.syx': [{ range: r0(42, 84), newText: '' }] } }
                     }
                 ] as CodeAction[]
             } as Diagnostic);
 
         });
 
-        inst(()=>{
-            const rep = createSyntaxScriptDiagnosticReport('TEST_FILE.syx','export compile(ts,js)"hello";');
+        inst(() => {
+            const rep = createSyntaxScriptDiagnosticReport('TEST_FILE.syx', 'export compile(ts,js)"hello";');
 
             baseExpectations(rep);
 
@@ -359,14 +359,14 @@ describe('Compiler module', () => {
 
             expect(diag).to.be.deep.equal({
                 message: 'This statement cannot be exported.',
-                source:'syntax-script',
-                severity:DiagnosticSeverity.Error,
-                range:r0(0,6),
-                data:[
+                source: 'syntax-script',
+                severity: DiagnosticSeverity.Error,
+                range: r0(0, 6),
+                data: [
                     {
-                        title:'Remove export keyword',
+                        title: 'Remove export keyword',
                         kind: CodeActionKind.QuickFix,
-                        edit:{changes:{'TEST_FILE.syx':[{range:r0(0,6),newText:''}]}}
+                        edit: { changes: { 'TEST_FILE.syx': [{ range: r0(0, 6), newText: '' }] } }
                     }
                 ] as CodeAction[]
             } as Diagnostic);
