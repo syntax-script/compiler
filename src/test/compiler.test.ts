@@ -350,6 +350,28 @@ describe('Compiler module', () => {
 
         });
 
+        inst(()=>{
+            const rep = createSyntaxScriptDiagnosticReport('TEST_FILE.syx','export compile(ts,js)"hello";');
+
+            baseExpectations(rep);
+
+            const diag = rep.items[0];
+
+            expect(diag).to.be.deep.equal({
+                message: 'This statement cannot be exported.',
+                source:'syntax-script',
+                severity:DiagnosticSeverity.Error,
+                range:r0(0,6),
+                data:[
+                    {
+                        title:'Remove export keyword',
+                        kind: CodeActionKind.QuickFix,
+                        edit:{changes:{'TEST_FILE.syx':[{range:r0(0,6),newText:''}]}}
+                    }
+                ] as CodeAction[]
+            } as Diagnostic);
+        });
+
     }, true);
 
 });
