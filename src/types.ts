@@ -632,12 +632,13 @@ export enum ExportType {
 /**
  * Base exportable interface.
  * @author efekos
- * @version 1.0.1
+ * @version 1.0.2
  * @since 0.0.1-alpha
  */
-export interface Exported {
+export interface Exported<T extends Statement> {
     type: ExportType;
     source: string;
+    handle: T;
 }
 
 /**
@@ -646,7 +647,7 @@ export interface Exported {
  * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface ExportedOperator extends Exported {
+export interface ExportedOperator extends Exported<OperatorStatement> {
     type: ExportType.Operator,
     regexMatcher: RegExp;
     outputGenerators: Record<string, OneParameterMethod<string, string>>;
@@ -659,7 +660,7 @@ export interface ExportedOperator extends Exported {
  * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface ExportedFunction extends Exported {
+export interface ExportedFunction extends Exported<FunctionStatement> {
     type: ExportType.Function;
     name: string;
     args: RegExp[];
@@ -673,10 +674,13 @@ export interface ExportedFunction extends Exported {
  * @version 1.0.1
  * @since 0.0.1-alpha
  */
-export interface ExportedKeyword extends Exported {
+export interface ExportedKeyword extends Exported<KeywordStatement> {
     type: ExportType.Keyword;
     word: string;
 }
+
+
+type ExportableByGlobal = ExportedFunction | ExportedGlobal;
 
 /**
  * Represents an exported global. Uses type {@link ExportType.Global}.
@@ -684,10 +688,10 @@ export interface ExportedKeyword extends Exported {
  * @version 1.0.1
  * @since 0.0.2-alpha
  */
-export interface ExportedGlobal extends Exported {
+export interface ExportedGlobal extends Exported<GlobalStatement> {
     type: ExportType.Global;
     name: string;
-    body: Exported[];
+    body: ExportableByGlobal[];
 }
 
 /**
