@@ -679,6 +679,18 @@ export interface ExportedKeyword extends Exported {
 }
 
 /**
+ * Represents an exported global. Uses type {@link ExportType.Global}.
+ * @author efekos
+ * @version 1.0.1
+ * @since 0.0.2-alpha
+ */
+export interface ExportedGlobal extends Exported {
+    type: ExportType.Global;
+    name: string;
+    body: Exported[];
+}
+
+/**
  * A method that has one parameter with the type {@link V} and returns {@link R}.
  * @author efekos
  * @version 1.0.0
